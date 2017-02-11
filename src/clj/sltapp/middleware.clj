@@ -8,11 +8,9 @@
             [sltapp.config :refer [env]]
             [ring.middleware.flash :refer [wrap-flash]]
             [immutant.web.middleware :refer [wrap-session]]
-            [buddy.auth :refer [authenticated? throw-unauthorized]]
-            [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
-            [buddy.auth.accessrules :refer [wrap-access-rules error]]
-            [ring.util.response :refer [redirect]]
+            [buddy.auth.accessrules :refer [wrap-access-rules]]
+            [sltapp.service.auth :as auth]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]])
   (:import [javax.servlet ServletContext]))
 
@@ -58,34 +56,11 @@
       ;; since they're not compatible with this middleware
       ((if (:websocket? request) handler wrapped) request))))
 
-(defn unauthorized-handler [request metadata]
-  (cond
-    (authenticated? request)
-    (error-page {:status 403
-                 :title "Permission denied"
-                 :message "You dont have access!"})
-    :else
-    (redirect (format "/login?next=%s" (:uri request)))))
-
-(def auth-backend
-  (session-backend {:unauthorized-handler unauthorized-handler}))
-
-(defn authenticated-user [request]
-  (if (:identity request)
-    true
-    (error "Only authenticated users allowed")))
-
-(def rules [{:pattern #"^/$"
-             :handler authenticated-user}])
-
-(defn on-error [request value]
-  (unauthorized-handler request value))
-
 (defn wrap-base [handler]
   (-> ((:middleware defaults) handler)
-      (wrap-access-rules {:rules rules :on-error on-error})
-      (wrap-authorization auth-backend)
-      (wrap-authentication auth-backend)
+      (wrap-access-rules {:rules auth/rules :on-error auth/on-error})
+      (wrap-authorization auth/auth-backend)
+      (wrap-authentication auth/auth-backend)
       wrap-webjars
       wrap-flash
       (wrap-session {:cookie-attrs {:http-only true}})
