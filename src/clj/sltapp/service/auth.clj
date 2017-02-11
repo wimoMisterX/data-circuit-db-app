@@ -31,6 +31,14 @@
 
 ; Auth Helpers
 
+(def valid-chars
+  (map char (concat (range 48 58)
+                    (range 65 91)
+                    (range 97 123))))
+
+(defn generate-random-password [length]
+  (apply str (take length (repeatedly #(rand-nth valid-chars)))))
+
 (defn encrypt-password [password]
   (hashers/encrypt password {:alg :pbkdf2+sha256
                              :salt "wimo"}))

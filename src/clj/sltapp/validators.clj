@@ -14,7 +14,7 @@
     :first_name v/required
     :last_name v/required
     :email [v/required v/email]
-    :password v/required))
+    :role v/required))
 
 (defn valid? [validated]
   (= (get validated 0) nil))

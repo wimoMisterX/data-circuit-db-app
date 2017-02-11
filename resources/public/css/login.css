@@ -43,3 +43,6 @@ input[type="password"] {
   border-top-right-radius: 0;
 }
 
+.no-borders tr td {
+  border: none;
+}
