@@ -2,6 +2,7 @@
   (:require [compojure.core :refer [routes wrap-routes]]
             [sltapp.layout :refer [error-page]]
             [sltapp.routes.home :refer [home-routes]]
+            [sltapp.routes.auth :refer [auth-routes]]
             [compojure.route :as route]
             [sltapp.env :refer [defaults]]
             [mount.core :as mount]
@@ -14,6 +15,9 @@
 (def app-routes
   (routes
     (-> #'home-routes
+        (wrap-routes middleware/wrap-csrf)
+        (wrap-routes middleware/wrap-formats))
+    (-> #'auth-routes
         (wrap-routes middleware/wrap-csrf)
         (wrap-routes middleware/wrap-formats))
     (route/not-found

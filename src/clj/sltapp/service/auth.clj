@@ -3,6 +3,7 @@
             [buddy.auth :refer [authenticated? throw-unauthorized]]
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.accessrules :refer [error]]
+            [buddy.hashers :as hashers]
             [ring.util.response :refer [redirect]]))
 
 (defn unauthorized-handler [request metadata]
@@ -27,3 +28,10 @@
 
 (def rules [{:pattern #"^/$"
              :handler authenticated-user}])
+
+; Auth Helpers
+
+(defn encrypt-password [password]
+  (hashers/encrypt password {:alg :pbkdf2+sha256
+                             :salt "wimo"}))
+
