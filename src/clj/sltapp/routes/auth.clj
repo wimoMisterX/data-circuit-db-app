@@ -5,11 +5,12 @@
             [sltapp.db.core :as db]
             [sltapp.validators :as validators]
             [sltapp.service.auth :as auth]
+            [sltapp.templates.base :as template]
             [buddy.hashers :as hashers]
             [clojure.java.io :as io]))
 
 (defn login-page [request]
-  (layout/render "login.html"))
+  (layout/render-new (template/login {})))
 
 (defn register-page [request]
   (layout/render "register.html"))
@@ -35,8 +36,8 @@
         (if (and user (hashers/check (:password (last cleaned-user)) (:password user)))
           (-> (redirect (get-in request [:query-params :next] "/"))
               (assoc-in [:session :identity] (:email user)))
-          (layout/render "login.html" {:errors {:form "Inavalid username/password"}})))
-      (layout/render "login.html" {:errors (validators/get-errors cleaned-user)}))))
+          (layout/render-new (template/login {:errors {:form ["Inavalid username/password"]}}))))
+      (layout/render-new (template/login {:errors (validators/get-errors cleaned-user)})))))
 
 (defn logout [request]
   (-> (redirect "/login")

@@ -11,6 +11,10 @@
 (parser/add-tag! :csrf-field (fn [_ _] (anti-forgery-field)))
 (filters/add-filter! :markdown (fn [content] [:safe (md-to-html-string content)]))
 
+(defn render-new [template & [params]]
+  (content-type
+    (ok template) "text/html; charset=utf-8"))
+
 (defn render
   "renders the HTML template located relative to resources/templates"
   [template & [params]]

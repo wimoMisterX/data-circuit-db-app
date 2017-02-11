@@ -27,6 +27,7 @@
                  [ring/ring-core "1.5.1"]
                  [ring/ring-defaults "0.2.2"]
                  [selmer "1.10.6"]
+                 [hiccup "1.0.5"]
                  [buddy/buddy-auth "1.4.1"]
                  [buddy/buddy-hashers "1.2.0"]]
 
