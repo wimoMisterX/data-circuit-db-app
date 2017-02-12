@@ -7,16 +7,12 @@
             [sltapp.validators :as validators]
             [sltapp.service.auth :as auth]
             [buddy.hashers :as hashers]
+            [sltapp.templates.home :as home-templates]
             [clojure.java.io :as io]))
 
 (defn home-page [request]
-  (layout/render
-    "home.html" {:docs (-> "docs/docs.md" io/resource slurp)}))
-
-(defn about-page [request]
-  (layout/render "about.html"))
+  (layout/render-new (home-templates/home {:name "Wimodya"})))
 
 (defroutes home-routes
-  (GET "/" [] home-page)
-  (GET "/about" [] about-page))
+  (GET "/" [] home-page))
 
