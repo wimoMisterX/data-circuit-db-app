@@ -1,6 +1,7 @@
 (ns sltapp.routes.auth
   (:require [sltapp.layout :refer [render base-context]]
             [compojure.core :refer [defroutes GET POST]]
+            [sltapp.utils :refer [get-next-url]]
             [ring.util.response :refer [redirect]]
             [sltapp.db.core :as db]
             [sltapp.validators :as validators]
@@ -8,9 +9,6 @@
             [sltapp.templates.auth :as auth-templates]
             [buddy.hashers :as hashers]
             [clojure.java.io :as io]))
-
-(defn get-next-url [request]
-  (get (:query-params request) "next" "/"))
 
 (defn login-page [request]
   (render (auth-templates/login {:next (get-next-url request)})))
