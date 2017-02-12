@@ -1,7 +1,7 @@
 (ns sltapp.templates.auth
  (:require [ring.util.anti-forgery :refer [anti-forgery-field]]
            [sltapp.templates.home :refer [base-home]]
-           [sltapp.templates.base :refer [base-app render-error form-group]])
+           [sltapp.templates.base :refer [base-app render-error form-group render-alerts]])
  (:use [hiccup.page :only (html5 include-css include-js)]
        [hiccup.form :only (label text-field password-field submit-button form-to drop-down)]))
 
@@ -13,6 +13,7 @@
                (form-to {:class "form-signin"} [:post (str "/login?next=" (:next params))]
                 (anti-forgery-field)
                 [:h2 {:class "form-signin-heading"} "Please Login"]
+                (render-alerts (:alerts params))
                 [:div {:class "input-group margin-bottom-sm"}
                  [:span {:class "input-group-addon"}
                   [:i {:class "fa fa-envelope-o fa-fw"}]]

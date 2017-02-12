@@ -1,19 +1,13 @@
 (ns sltapp.templates.home
  (:require [ring.util.anti-forgery :refer [anti-forgery-field]]
-           [sltapp.templates.base :refer [base-app render-error]])
+           [sltapp.templates.base :refer [base-app render-error render-alerts]])
  (:use [hiccup.page :only (html5 include-css include-js)]
        [hiccup.util :only (escape-html)]
        [hiccup.form :only (text-field password-field submit-button form-to drop-down)]))
 
 (defn nav-pills [active pills]
   (map #(-> [:li {:class (if (= active (:value %)) "active")}
-             [:a {:href (:href %)} (:value %)]]) pills))
-
-(defn render-alerts [alerts]
-  (map #(-> [:div {:class (str "alert alert-dismissible alert-" (:class %)) :role "alert"}
-             [:button {:type "button" :class "close" :data-dismiss "alert" :aria-label "Close"}
-              [:span {:aria-hidden "true"} "&times;"]]
-             (:message %)]) alerts))
+             [:a {:href (:href %)} (:value %)]]) (filter #(not (empty? %)) pills)))
 
 (defn base-home [params]
   (base-app

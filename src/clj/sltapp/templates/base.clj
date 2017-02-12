@@ -16,6 +16,12 @@
           (include-js "/assets/bootstrap/js/bootstrap.min.js")
           (:extrabottom context)]))
 
+(defn render-alerts [alerts]
+  (map #(-> [:div {:class (str "alert alert-dismissible alert-" (:class %)) :role "alert"}
+             [:button {:type "button" :class "close" :data-dismiss "alert" :aria-label "Close"}
+              [:span {:aria-hidden "true"} "&times;"]]
+             (:message %)]) alerts))
+
 (defn render-error [errors]
   (if errors
     (map #(-> [:span {:class "label label-danger"} %]) errors)))

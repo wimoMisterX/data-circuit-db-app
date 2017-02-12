@@ -76,8 +76,10 @@
         (if (and user (hashers/check (:password (last cleaned-user)) (:password user)))
           (-> (redirect (get-next-url request))
               (assoc-in [:session :identity] (select-keys user [:email :admin :first_name :last_name])))
-          (render (auth-templates/login {:errors {:form ["Inavalid email/password"]}}))))
-      (render (auth-templates/login {:errors (validators/get-errors cleaned-user)})))))
+          (render (auth-templates/login {:next (get-next-url request)
+                                         :alerts [{:class "danger" :message "Invalid email/password"}]}))))
+      (render (auth-templates/login {:next (get-next-url request)
+                                     :errors (validators/get-errors cleaned-user)})))))
 
 (defn logout [request]
   (-> (redirect "/login")
