@@ -1,6 +1,6 @@
 (ns sltapp.templates.base
  (:use [hiccup.page :only (html5 include-css include-js)]
-       [hiccup.form :only (text-field password-field submit-button form-to)]))
+       [hiccup.form :only (label text-field password-field submit-button form-to)]))
 
 (defn base-app [title context]
   (html5 {:lang "en"}
@@ -18,7 +18,14 @@
 
 (defn render-error [errors]
   (if errors
-    (map #(-> [:span {:class "alert alert-danger"} %]) errors)))
+    (map #(-> [:span {:class "label label-danger"} %]) errors)))
+
+(defn form-group [label_name field errors & args]
+  [:div {:class "form-group"}
+   (if label_name (label {:class "col-sm-2 control-label"} (get args :id "") label_name))
+   [:div {:class (str "col-sm-10" (if (not label_name) " col-sm-offset-2"))}
+    field
+    (if errors (render-error errors))]])
 
 (defn error-page [error-details]
   (base-app

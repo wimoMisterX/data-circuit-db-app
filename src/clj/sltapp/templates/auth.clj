@@ -1,8 +1,9 @@
 (ns sltapp.templates.auth
  (:require [ring.util.anti-forgery :refer [anti-forgery-field]]
-           [sltapp.templates.base :refer [base-app render-error]])
+           [sltapp.templates.home :refer [base-home]]
+           [sltapp.templates.base :refer [base-app render-error form-group]])
  (:use [hiccup.page :only (html5 include-css include-js)]
-       [hiccup.form :only (text-field password-field submit-button form-to drop-down)]))
+       [hiccup.form :only (label text-field password-field submit-button form-to drop-down)]))
 
 (defn base-auth [params]
   (base-app
@@ -28,33 +29,33 @@
                          (password-field {:class "form-control" :placeholder "Password"} "password")
                          (render-error (-> context :errors :password))]})))
 
-(defn register [context]
-  (base-auth (merge
-               context
-               {:title "Register"
-                :post_url "/register"
-                :form_heading "Register a User"
-                :submit_button "Register"
-                :fields [(text-field {:class "form-control" :placeholder "First Name"} "first_name")
-                         (render-error (-> context :errors :first_name))
-                         (text-field {:class "form-control" :placeholder "Last Name"} "last_name")
-                         (render-error (-> context :errors :last_name))
-                         (text-field {:class "form-control" :placeholder "Email Address"} "email")
-                         (render-error (-> context :errors :email))
-                         (drop-down {:class "form-control"} "role" ["Admin" "User"])
-                         (render-error (-> context :errors :role))]})))
+(defn register [params]
+  (base-home (merge
+              params
+              {:title "Register"
+              :active_page "Register a User"
+              :page_header "Register a User"
+              :main_content (form-to {:class "form-horizontal"} [:post ""]
+                             (anti-forgery-field)
+                             (form-group "First Name" (text-field {:class "form-control"} "first_name") (-> params :errors :first_name))
+                             (form-group "Last Name" (text-field {:class "form-control"} "last_name") (-> params :errors :last_name))
+                             (form-group "Email" (text-field {:class "form-control"} "email") (-> params :errors :email))
+                             (form-group "Role" (drop-down {:class "form-control"} "role" ["Admin" "User"]) (-> params :errors :role))
+                             (form-group "" (submit-button {:class "btn btn-primary"} "Register") nil))})))
 
-(defn register-success [context]
-  (base-app
-    "Register Success"
-    {:extrahead (include-css "/css/login.css")
-     :content [:div {:class "wrapper"}
-               [:div {:class "form-signin"}
-                [:h2 "Registration Success"]
-                [:table {:class "table no-borders"}
-                 [:tr
-                  [:td "Email"]
-                  [:td (:email context)]]
-                 [:tr
-                  [:td "Password"]
-                  [:td (:password context)]]]]]}))
+(defn register-success [params]
+  (base-home (merge
+              params
+              {:title "Register"
+              :active_page "Register a User"
+              :page_header "Register a User"
+              :main_content [:div
+                             [:table {:class "table"}
+                              [:caption "The login details of the user"]
+                              [:tbody
+                               [:tr
+                                [:td "Email"]
+                                [:td (:email params)]]
+                               [:tr
+                                [:td "Password"]
+                                [:td (:password params)]]]]]})))

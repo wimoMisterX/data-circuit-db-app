@@ -12,7 +12,7 @@ WHERE id = :id
 
 -- :name get-user :? :1
 -- :doc retrieve a user given the id.
-SELECT email, password, is_active, admin FROM users
+SELECT first_name, last_name, email, password, is_active, admin FROM users
 WHERE email = :email
 
 -- :name delete-user! :! :n

@@ -2,11 +2,18 @@
  (:require [ring.util.anti-forgery :refer [anti-forgery-field]]
            [sltapp.templates.base :refer [base-app render-error]])
  (:use [hiccup.page :only (html5 include-css include-js)]
+       [hiccup.util :only (escape-html)]
        [hiccup.form :only (text-field password-field submit-button form-to drop-down)]))
 
 (defn nav-pills [active pills]
   (map #(-> [:li {:class (if (= active (:value %)) "active")}
              [:a {:href (:href %)} (:value %)]]) pills))
+
+(defn render-alerts [alerts]
+  (map #(-> [:div {:class (str "alert alert-dismissible alert-" (:class %)) :role "alert"}
+             [:button {:type "button" :class "close" :data-dismiss "alert" :aria-label "Close"}
+              [:span {:aria-hidden "true"} "&times;"]]
+             (:message %)]) alerts))
 
 (defn base-home [params]
   (base-app
@@ -25,24 +32,29 @@
                   [:div {:id "navbar" :class "collapse navbar-collapse"}
                    [:ul {:class "nav navbar-nav navbar-right"}
                     (nav-pills (:active_page params) [{:href "/profile" :value "Profile"}
-                                                      {:href "/logout" :value "Logout"}])]]]]
+                                                      {:href "/logout" :value "Logout"}])]
+                   [:p {:class "navbar-text navbar-right"} (str "Signed in as " (:full_name params))]]]]
                 [:div {:class "container-fluid"}
                  [:div {:class "row"}
                   [:div {:class "col-sm-3 col-md-2 sidebar"}
                    [:ul {:class "nav nav-sidebar"}
                     (nav-pills (:active_page params) [{:href "/" :value "Home"}
-                                                      {:href "/form1" :value "Form 1"}
-                                                      {:href "/form2" :value "Form 2"}
-                                                      {:href "/form3" :value "Form 3"}
-                                                      {:href "/form4" :value "Form 4"}
-                                                      {:href "/form5" :value "Form 5"}])]]
+                                                      {:href "/form1" :value "New Circuit Commissioning"}
+                                                      {:href "/form2" :value "BW Changing"}
+                                                      {:href "/form3" :value "VPLS Changing"}
+                                                      {:href "/form4" :value "Device Changing"}
+                                                      {:href "/form5" :value "Disconnecting"}
+                                                      (if (:admin params) {:href "/register" :value "Register a User"})])]]
                   [:div {:class "col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"}
                    [:h1 {:class "page-header"} (:page_header params)]
+                   (render-alerts (:alerts params))
                    (:main_content params)]]]]}))
 
 (defn home [params]
-  (base-home {:title "Home"
-              :active_page "Home"
-              :page_header (str "Welcome " (:name params))
-              :main_content [:div {:class "row"}]}))
+  (base-home (merge
+               params
+               {:title "Home"
+                :active_page "Home"
+                :page_header (str "Welcome " (first (clojure.string/split (:full_name params) #"\s")))
+                :main_content [:div {:class "row"}]})))
 

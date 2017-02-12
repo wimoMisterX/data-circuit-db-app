@@ -20,6 +20,11 @@
     true
     (error "Only authenticated users allowed")))
 
+(defn admin-access [request]
+  (if (-> request :identity :admin)
+    true
+    (error "Only authenticated users allowed")))
+
 (defn on-error [request value]
   (unauthorized-handler request value))
 
@@ -27,7 +32,9 @@
   (session-backend {:unauthorized-handler unauthorized-handler}))
 
 (def rules [{:pattern #"^/$"
-             :handler authenticated-user}])
+             :handler authenticated-user}
+            {:pattern #"^/register$"
+             :handler admin-access}])
 
 ; Auth Helpers
 

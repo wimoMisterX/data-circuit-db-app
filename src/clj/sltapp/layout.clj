@@ -21,3 +21,7 @@
   {:status  (:status error-details)
    :headers {"Content-Type" "text/html; charset=utf-8"}
    :body    (base-templates/error-page error-details)})
+
+(defn base-context [request]
+  {:admin (-> request :session :identity :admin)
+   :full_name (str (-> request :session :identity :first_name) " " (-> request :session :identity :last_name))})

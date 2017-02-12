@@ -1,5 +1,5 @@
 (ns sltapp.routes.auth
-  (:require [sltapp.layout :refer [render]]
+  (:require [sltapp.layout :refer [render base-context]]
             [compojure.core :refer [defroutes GET POST]]
             [ring.util.response :refer [redirect]]
             [sltapp.db.core :as db]
@@ -13,7 +13,7 @@
   (render (auth-templates/login {})))
 
 (defn register-page [request]
-  (render (auth-templates/register {})))
+  (render (auth-templates/register (base-context request))))
 
 (defn register-user [request]
   (let [user (validators/validate-user-register (:params request))]
@@ -28,9 +28,12 @@
              :password (auth/encrypt-password password)
              :admin (= "Admin" (:role user-fields))
              :is_active true})
-          (render (auth-templates/register-success {:email email
-                                                              :password password}))))
-      (render (auth-templates/register {:errors (validators/get-errors user)})))))
+          (render (auth-templates/register-success {:alerts [{:class "success" :message "User registerd successfully"}]
+                                                    :email email
+                                                    :password password}))))
+      (render (auth-templates/register (merge
+                                         (base-context request)
+                                         {:errors (validators/get-errors user)}))))))
 
 (defn login-user [request]
   (let [cleaned-user (validators/validate-user-login (:params request))]
@@ -38,7 +41,7 @@
       (let [user (db/get-user (last cleaned-user))]
         (if (and user (hashers/check (:password (last cleaned-user)) (:password user)))
           (-> (redirect (get-in request [:query-params :next] "/"))
-              (assoc-in [:session :identity] (:email user)))
+              (assoc-in [:session :identity] (select-keys user [:email :admin :first_name :last_name])))
           (render (auth-templates/login {:errors {:form ["Inavalid email/password"]}}))))
       (render (auth-templates/login {:errors (validators/get-errors cleaned-user)})))))
 
