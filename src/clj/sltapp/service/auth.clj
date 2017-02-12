@@ -35,6 +35,10 @@
              :handler authenticated-user}
             {:pattern #"^/profile$"
              :handler authenticated-user}
+            {:pattern #"^/manage-users$"
+             :handler admin-access}
+            {:pattern #"^/reset-password/[0-9]+$"
+             :handler admin-access}
             {:pattern #"^/register$"
              :handler admin-access}])
 

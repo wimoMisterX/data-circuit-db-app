@@ -53,3 +53,7 @@ body {
 .main .page-header {
   margin-top: 0;
 }
+
+.action-spacing a{
+  margin-right: 10px;
+}

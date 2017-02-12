@@ -21,13 +21,29 @@
 (defn profile-page [request]
   (render (auth-templates/profile (base-context request))))
 
+(defn manage-users-page [request]
+  (render (auth-templates/manage-users (merge
+                                         (base-context request)
+                                         {:user_list (db/get-user-list {:email (-> request :identity :email)})}))))
+
+(defn reset-password [request id]
+  (let [password (auth/generate-random-password 8)
+        user (db/get-user-by-id {:id id})]
+    (db/update-user-password-id! {:password (auth/encrypt-password password)
+                                  :id id})
+    (render (auth-templates/reset-password (merge
+                                             (base-context request)
+                                             {:alerts [{:class "success" :message "Password reset successfully"}]
+                                              :email (:email user)
+                                              :password password})))))
+
 (defn change-password [request]
   (let [form (validators/validate-change-password-form (:params request))]
     (let [valid_form (and
                        (validators/valid? form)
                        (validators/validate-change-password (:params request) (:password (db/get-user {:email (-> request :identity :email)}))))]
-      (if valid_form (db/update-user-password! {:password (auth/encrypt-password (:new_password form))
-                                                :email (-> request :identity :email)}))
+      (if valid_form (db/update-user-password-email! {:password (auth/encrypt-password (-> request :params :new_password))
+                                                      :email (-> request :identity :email)}))
       (render (auth-templates/profile (merge
                                         (base-context request)
                                         {:alerts [{:class (if valid_form "success" "danger")  :message (if valid_form "Password updated successfully" "Invalid")}]
@@ -73,6 +89,8 @@
   (POST "/register" [] register-user)
   (GET "/logout" [] logout)
   (GET "/profile" [] profile-page)
+  (GET "/manage-users" [] manage-users-page)
+  (GET "/reset-password/:id{[0-9]+}" [request id] (reset-password request id))
   (POST "/change-password" [] change-password)
   (GET "/login" [] login-page))
 

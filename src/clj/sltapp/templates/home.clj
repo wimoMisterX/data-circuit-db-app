@@ -44,7 +44,8 @@
                                                       {:href "/form3" :value "VPLS Changing"}
                                                       {:href "/form4" :value "Device Changing"}
                                                       {:href "/form5" :value "Disconnecting"}
-                                                      (if (:admin params) {:href "/register" :value "Register a User"})])]]
+                                                      (if (:admin params) {:href "/register" :value "Register a User"})
+                                                      (if (:admin params) {:href "/manage-users" :value "Manage Users"})])]]
                   [:div {:class "col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"}
                    [:h1 {:class "page-header"} (:page_header params)]
                    (render-alerts (:alerts params))

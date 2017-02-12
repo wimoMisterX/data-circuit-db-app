@@ -24,8 +24,25 @@ WHERE id = :id
 -- :doc selects all available users
 SELECT * FROM users
 
--- :name update-user-password! :! :n
+-- :name update-user-password-email! :! :n
 -- :doc update an existing user's password
 UPDATE users
 SET password = :password
 WHERE email = :email
+
+-- :name update-user-password-id! :! :n
+-- :doc update an existing user's password
+UPDATE users
+SET password = :password
+WHERE id = :id
+
+-- :name get-user-list :? :*
+-- :doc selects all available users execpt for current user
+SELECT * FROM users
+WHERE email <> :email
+
+-- :name get-user-by-id :? :1
+-- :doc retrieve a user given the id.
+SELECT email FROM users
+WHERE id = :id
+

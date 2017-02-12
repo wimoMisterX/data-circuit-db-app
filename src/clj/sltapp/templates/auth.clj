@@ -68,3 +68,46 @@
                              (form-group "New Password" (password-field {:class "form-control"} "new_password") (-> params :errors :new_password))
                              (form-group "Confirm New Password" (password-field {:class "form-control"} "confirm_new_password") (-> params :errors :confirm_new_password))
                              (form-group "" (submit-button {:class "btn btn-primary"} "Change Password") nil))})))
+
+(defn manage-users [params]
+  (base-home (merge
+              params
+              {:title "Manage Users"
+              :active_page "Manage Users"
+              :page_header "Manager Users"
+              :main_content [:div
+                             [:table {:class "table"}
+                              [:thead
+                               [:tr
+                                [:th "First Name"]
+                                [:th "Last Name"]
+                                [:th "Email"]
+                                [:th "Role"]
+                                [:th "Actions"]]]
+                              [:tbody
+                               (for [user (:user_list params)] [:tr
+                                                                [:td (:first_name user)]
+                                                                [:td (:last_name user)]
+                                                                [:td (:email user)]
+                                                                [:td (if (:admin user) "Admin" "User")]
+                                                                [:td {:class "action-spacing"}
+                                                                 [:a {:href (str "/reset-password/" (:id user))} "Reset Password"]
+                                                                 [:a {:href (str "/change-role/" (:id user) "/" (if (:admin user) "user" "admin"))} (if (:admin user) "Make user" "Make admin")]
+                                                                 [:a {:href (str "/change-status/" (:id user) "/" (if (:is_active user) "deactivate" "activate"))} (if (:is_active user) "Deactivate user" "Activate user")]]])]]]})))
+
+(defn reset-password [params]
+  (base-home (merge
+              params
+              {:title "Reset Password"
+              :active_page "Reset Password"
+              :page_header "Reset Password"
+              :main_content [:div
+                             [:table {:class "table"}
+                              [:tbody
+                               [:tr
+                                [:td "Email"]
+                                [:td (:email params)]]
+                               [:tr
+                                [:td "Password"]
+                                [:td (:password params)]]]]]})))
+
