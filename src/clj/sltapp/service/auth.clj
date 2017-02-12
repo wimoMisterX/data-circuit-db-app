@@ -1,5 +1,5 @@
 (ns sltapp.service.auth
-  (:require [sltapp.layout :refer [*app-context* error-page]]
+  (:require [sltapp.layout :refer [error-page]]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.accessrules :refer [error]]

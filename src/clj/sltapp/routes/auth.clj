@@ -1,5 +1,5 @@
 (ns sltapp.routes.auth
-  (:require [sltapp.layout :as layout]
+  (:require [sltapp.layout :refer [render]]
             [compojure.core :refer [defroutes GET POST]]
             [ring.util.response :refer [redirect]]
             [sltapp.db.core :as db]
@@ -10,10 +10,10 @@
             [clojure.java.io :as io]))
 
 (defn login-page [request]
-  (layout/render-new (auth-templates/login {})))
+  (render (auth-templates/login {})))
 
 (defn register-page [request]
-  (layout/render-new (auth-templates/register {})))
+  (render (auth-templates/register {})))
 
 (defn register-user [request]
   (let [user (validators/validate-user-register (:params request))]
@@ -28,9 +28,9 @@
              :password (auth/encrypt-password password)
              :admin (= "Admin" (:role user-fields))
              :is_active true})
-          (layout/render-new (auth-templates/register-success {:email email
+          (render (auth-templates/register-success {:email email
                                                               :password password}))))
-      (layout/render-new (auth-templates/register {:errors (validators/get-errors user)})))))
+      (render (auth-templates/register {:errors (validators/get-errors user)})))))
 
 (defn login-user [request]
   (let [cleaned-user (validators/validate-user-login (:params request))]
@@ -39,8 +39,8 @@
         (if (and user (hashers/check (:password (last cleaned-user)) (:password user)))
           (-> (redirect (get-in request [:query-params :next] "/"))
               (assoc-in [:session :identity] (:email user)))
-          (layout/render-new (auth-templates/login {:errors {:form ["Inavalid email/password"]}}))))
-      (layout/render-new (auth-templates/login {:errors (validators/get-errors cleaned-user)})))))
+          (render (auth-templates/login {:errors {:form ["Inavalid email/password"]}}))))
+      (render (auth-templates/login {:errors (validators/get-errors cleaned-user)})))))
 
 (defn logout [request]
   (-> (redirect "/login")

@@ -1,5 +1,5 @@
 (ns sltapp.routes.home
-  (:require [sltapp.layout :as layout]
+  (:require [sltapp.layout :refer [render]]
             [compojure.core :refer [defroutes GET POST]]
             [ring.util.http-response :as response]
             [ring.util.response :refer [redirect]]
@@ -11,7 +11,7 @@
             [clojure.java.io :as io]))
 
 (defn home-page [request]
-  (layout/render-new (home-templates/home {:name "Wimodya"})))
+  (render (home-templates/home {:name "Wimodya"})))
 
 (defroutes home-routes
   (GET "/" [] home-page))

@@ -19,3 +19,20 @@
 (defn render-error [errors]
   (if errors
     (map #(-> [:span {:class "alert alert-danger"} %]) errors)))
+
+(defn error-page [error-details]
+  (base-app
+    "Something bad happened"
+    {:extrahead (include-css "/css/error.css")
+     :content [:div {:class "container-fluid"}
+               [:div {:class "row-fluid"}
+                [:div {:class "col-lg-12"}
+                 [:div {:class "centering text-center"}
+                  [:div {:class "text-center"}
+                   [:h1
+                    [:span {:class "text-danger"} (str "Error:" (:status error-details))]]
+                   [:hr]
+                   (if (:title error-details)
+                     [:h2 {:class "without-margin"} (:title error-details)])
+                   (if (:message error-details)
+                     [:h4 {:class "text-danger"} (:message error-details)])]]]]]}))
