@@ -9,11 +9,17 @@
             [buddy.hashers :as hashers]
             [clojure.java.io :as io]))
 
+(defn get-next-url [request]
+  (get (:query-params request) "next" "/"))
+
 (defn login-page [request]
-  (render (auth-templates/login {})))
+  (render (auth-templates/login {:next (get-next-url request)})))
 
 (defn register-page [request]
   (render (auth-templates/register (base-context request))))
+
+(defn profile-page [request]
+  (render (auth-templates/profile (base-context request))))
 
 (defn register-user [request]
   (let [user (validators/validate-user-register (:params request))]
@@ -40,7 +46,7 @@
     (if (validators/valid? cleaned-user)
       (let [user (db/get-user (last cleaned-user))]
         (if (and user (hashers/check (:password (last cleaned-user)) (:password user)))
-          (-> (redirect (get-in request [:query-params :next] "/"))
+          (-> (redirect (get-next-url request))
               (assoc-in [:session :identity] (select-keys user [:email :admin :first_name :last_name])))
           (render (auth-templates/login {:errors {:form ["Inavalid email/password"]}}))))
       (render (auth-templates/login {:errors (validators/get-errors cleaned-user)})))))
@@ -54,5 +60,6 @@
   (GET "/register" [] register-page)
   (POST "/register" [] register-user)
   (GET "/logout" [] logout)
+  (GET "/profile" [] profile-page)
   (GET "/login" [] login-page))
 

@@ -15,12 +15,12 @@ body {
   border: 1px solid rgba(0,0,0,0.1);
 }
 
-.form-signin-heading, .checkbox {
+.form-signin-heading{
   margin-bottom: 30px;
 }
 
-.checkbox {
-  font-weight: normal;
+.form-signin input[type="submit"]{
+  margin-top: 30px;
 }
 
 .form-control {
@@ -31,18 +31,6 @@ body {
   @include box-sizing(border-box);
 }
 
-input[type="text"] {
-  margin-bottom: -1px;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-input[type="password"] {
-  margin-bottom: 20px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.no-borders tr td {
-  border: none;
+.input-group {
+  margin-bottom: 15px;
 }

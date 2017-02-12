@@ -33,6 +33,8 @@
 
 (def rules [{:pattern #"^/$"
              :handler authenticated-user}
+            {:pattern #"^/profile$"
+             :handler authenticated-user}
             {:pattern #"^/register$"
              :handler admin-access}])
 

@@ -5,29 +5,25 @@
  (:use [hiccup.page :only (html5 include-css include-js)]
        [hiccup.form :only (label text-field password-field submit-button form-to drop-down)]))
 
-(defn base-auth [params]
+(defn login [params]
   (base-app
-    (:title params)
+    "Login"
     {:extrahead (include-css "/css/login.css")
      :content [:div {:class "wrapper"}
-               (form-to {:class "form-signin"} [:post (:post_url params)]
+               (form-to {:class "form-signin"} [:post (str "/login?next=" (:next params))]
                 (anti-forgery-field)
-                [:h2 {:class "form-signin-heading"} (:form_heading params)]
-                (render-error (-> params :errors :form))
-                (concat (:fields params))
-                (submit-button {:class "btn btn-lg btn-primary btn-block"} (:submit_button params)))]}))
-
-(defn login [context]
-  (base-auth (merge
-               context
-               {:title "Login"
-                :post_url "/login"
-                :form_heading "Please Login"
-                :submit_button "Login"
-                :fields [(text-field {:class "form-control" :placeholder "Email Address"} "email")
-                         (render-error (-> context :errors :email))
-                         (password-field {:class "form-control" :placeholder "Password"} "password")
-                         (render-error (-> context :errors :password))]})))
+                [:h2 {:class "form-signin-heading"} "Please Login"]
+                [:div {:class "input-group margin-bottom-sm"}
+                 [:span {:class "input-group-addon"}
+                  [:i {:class "fa fa-envelope-o fa-fw"}]]
+                 (text-field {:class "form-control" :placeholder "Email Address"} "email")
+                 (render-error (-> params :errors :email))]
+                [:div {:class "input-group"}
+                 [:span {:class "input-group-addon"}
+                  [:i {:class "fa fa-key fa-fw"}]]
+                 (password-field {:class "form-control" :placeholder "Password"} "password")
+                 (render-error (-> params :errors :password))]
+                (submit-button {:class "btn btn-lg btn-primary btn-block"} "Login"))]}))
 
 (defn register [params]
   (base-home (merge
@@ -59,3 +55,16 @@
                                [:tr
                                 [:td "Password"]
                                 [:td (:password params)]]]]]})))
+
+(defn profile [params]
+  (base-home (merge
+              params
+              {:title "Profile"
+              :active_page "Profile"
+              :page_header "Change Password"
+              :main_content (form-to {:class "form-horizontal"} [:post ""]
+                             (anti-forgery-field)
+                             (form-group "Current Password" (text-field {:class "form-control"} "current_password") (-> params :errors :first_name))
+                             (form-group "New Password" (text-field {:class "form-control"} "new_password") (-> params :errors :first_name))
+                             (form-group "Confirm New Password" (text-field {:class "form-control"} "confirm_new_password") (-> params :errors :first_name))
+                             (form-group "" (submit-button {:class "btn btn-primary"} "Change Password") nil))})))
