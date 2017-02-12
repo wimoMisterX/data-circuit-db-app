@@ -23,3 +23,9 @@ WHERE id = :id
 -- :name get-users :? :*
 -- :doc selects all available users
 SELECT * FROM users
+
+-- :name update-user-password! :! :n
+-- :doc update an existing user's password
+UPDATE users
+SET password = :password
+WHERE email = :email

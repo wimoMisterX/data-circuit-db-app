@@ -62,9 +62,9 @@
               {:title "Profile"
               :active_page "Profile"
               :page_header "Change Password"
-              :main_content (form-to {:class "form-horizontal"} [:post ""]
+              :main_content (form-to {:class "form-horizontal"} [:post "/change-password"]
                              (anti-forgery-field)
-                             (form-group "Current Password" (text-field {:class "form-control"} "current_password") (-> params :errors :first_name))
-                             (form-group "New Password" (text-field {:class "form-control"} "new_password") (-> params :errors :first_name))
-                             (form-group "Confirm New Password" (text-field {:class "form-control"} "confirm_new_password") (-> params :errors :first_name))
+                             (form-group "Current Password" (password-field {:class "form-control"} "current_password") (-> params :errors :current_password))
+                             (form-group "New Password" (password-field {:class "form-control"} "new_password") (-> params :errors :new_password))
+                             (form-group "Confirm New Password" (password-field {:class "form-control"} "confirm_new_password") (-> params :errors :confirm_new_password))
                              (form-group "" (submit-button {:class "btn btn-primary"} "Change Password") nil))})))

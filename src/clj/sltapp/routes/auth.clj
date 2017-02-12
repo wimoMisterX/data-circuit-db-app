@@ -21,6 +21,18 @@
 (defn profile-page [request]
   (render (auth-templates/profile (base-context request))))
 
+(defn change-password [request]
+  (let [form (validators/validate-change-password-form (:params request))]
+    (let [valid_form (and
+                       (validators/valid? form)
+                       (validators/validate-change-password (:params request) (:password (db/get-user {:email (-> request :identity :email)}))))]
+      (if valid_form (db/update-user-password! {:password (auth/encrypt-password (:new_password form))
+                                                :email (-> request :identity :email)}))
+      (render (auth-templates/profile (merge
+                                        (base-context request)
+                                        {:alerts [{:class (if valid_form "success" "danger")  :message (if valid_form "Password updated successfully" "Invalid")}]
+                                         :errors (validators/get-errors form)}))))))
+
 (defn register-user [request]
   (let [user (validators/validate-user-register (:params request))]
     (if (validators/valid? user)
@@ -61,5 +73,6 @@
   (POST "/register" [] register-user)
   (GET "/logout" [] logout)
   (GET "/profile" [] profile-page)
+  (POST "/change-password" [] change-password)
   (GET "/login" [] login-page))
 
