@@ -4,17 +4,11 @@ INSERT INTO users
 (first_name, last_name, email, password, admin, is_active)
 VALUES (:first_name, :last_name, :email, :password, :admin, :is_active)
 
--- :name get-user-by-id :? :1
--- :doc retrieve a user given the id.
-SELECT id, first_name, last_name, email, password, is_active, admin
+-- :name get-user :? :1
+-- :doc retrieve a user
+SELECT :i*:cols
 FROM users
-WHERE id = :id
-
--- :name get-user-by-email :? :1
--- :doc retrieve a user given the email
-SELECT id, first_name, last_name, email, password, is_active, admin
-FROM users
-WHERE email = :email
+WHERE :i:id-field = :id-value
 
 -- :name get-user-list :? :*
 -- :doc get all non admins
@@ -25,4 +19,4 @@ WHERE email <> :email AND admin = false
 -- :doc update an existing user's
 UPDATE users
 SET :i:col = :value
-WHERE :i:id-field = :i:id-value
+WHERE :i:id-field = :id-value

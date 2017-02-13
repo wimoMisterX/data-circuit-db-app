@@ -39,7 +39,7 @@
 
 (defn reset-password [request id]
   (let [password (auth/generate-random-password 8)
-        user (db/get-user-by-id {:id id})]
+        user (db/get-user {:cols ["email"] :id-field "id" :id-value id})]
     (db/update-user {:id-field "id" :id-value id :col "password" :value (auth/encrypt-password password)})
     (render (auth-templates/reset-password (merge
                                              (base-context-authenticated-access request)
@@ -51,7 +51,7 @@
   (let [form (validators/validate-change-password-form (:params request))]
     (let [valid_form (and
                        (validators/valid? form)
-                       (validators/validate-change-password (:params request) (:password (db/get-user-by-id {:id (-> request :identity :id)}))))]
+                       (validators/validate-change-password (:params request) (:password (db/get-user {:cols ["password"] :id-field "id" :id-value (-> request :identity :id)}))))]
       (if valid_form (db/update-user {:id-field "id" :id-value (str (-> request :identity :id)) :col "password" :value (auth/encrypt-password (-> request :params :new_password))}))
       (render (auth-templates/profile (merge
                                         (base-context-authenticated-access request)
@@ -82,7 +82,7 @@
 (defn login-user [request next]
   (let [cleaned-user (validators/validate-user-login (:params request))]
     (if (validators/valid? cleaned-user)
-      (let [user (db/get-user-by-email (last cleaned-user))]
+      (let [user (db/get-user {:id-field "email" :id-value (:email (last cleaned-user)) :cols ["id" "email" "first_name" "last_name" "is_active" "password" "admin"]})]
         (if (and user (hashers/check (:password (last cleaned-user)) (:password user)) (:is_active user))
           (-> (redirect (if (clojure.string/blank? next) "/" next))
               (assoc-in [:session :identity] (select-keys user [:id :email :admin :first_name :last_name])))
