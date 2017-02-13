@@ -82,12 +82,13 @@
 (defn login-user [request next]
   (let [cleaned-user (validators/validate-user-login (:params request))]
     (if (validators/valid? cleaned-user)
-      (let [user (db/get-user {:id-field "email" :id-value (:email (last cleaned-user)) :cols ["id" "email" "first_name" "last_name" "is_active" "password" "admin"]})]
-        (if (and user (hashers/check (:password (last cleaned-user)) (:password user)) (:is_active user))
+      (let [user (db/get-user {:id-field "email" :id-value (:email (last cleaned-user)) :cols ["id" "email" "first_name" "last_name" "is_active" "password" "admin"]})
+            password-match (hashers/check (:password (last cleaned-user)) (:password user))]
+        (if (and user password-match  (:is_active user))
           (-> (redirect (if (clojure.string/blank? next) "/" next))
               (assoc-in [:session :identity] (select-keys user [:id :email :admin :first_name :last_name])))
           (-> (redirect (str "/login?next=" next))
-              (assoc-in [:flash :alerts] [{:class "danger" :message (if (:is_active user) "Invalid email/password" "User has been deactivated")}]))))
+              (assoc-in [:flash :alerts] [{:class "danger" :message (if password-match "User has been deactivated" "Invalid email/password" )}]))))
       (-> (redirect (str "/login?next=" next))
           (assoc-in [:flash :form_errors] (validators/get-errors cleaned-user))))))
 
