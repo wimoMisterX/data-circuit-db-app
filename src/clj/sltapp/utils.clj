@@ -6,3 +6,7 @@
 (defn get-next-url [request]
   (get (:query-params request) "next" "/"))
 
+(defn perform-action-and-redirect [url func alert]
+  (if func (func))
+  (-> (redirect url)
+      (assoc-in [:flash :alerts] [alert])))

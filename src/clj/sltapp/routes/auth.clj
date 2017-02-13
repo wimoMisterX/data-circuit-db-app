@@ -1,7 +1,7 @@
 (ns sltapp.routes.auth
   (:require [sltapp.layout :refer [render base-context-authenticated-access base-context-any-access]]
             [compojure.core :refer [defroutes GET POST]]
-            [sltapp.utils :refer [get-next-url]]
+            [sltapp.utils :refer [get-next-url perform-action-and-redirect]]
             [ring.util.response :refer [redirect]]
             [sltapp.db.core :as db]
             [sltapp.validators :as validators]
@@ -30,8 +30,12 @@
                                          {:user_list (db/get-user-list {:email (-> request :identity :email)})}))))
 
 (defn modify-user [request id field value]
-  (-> (redirect "/manage-users")
-      (assoc-in [:flash :alerts] [{:class "danger" :message "This is a flash message"}])))
+  (let [return-fn (partial perform-action-and-redirect "/manage-users")]
+    (cond
+      (= field "role") (return-fn #(db/update-user-admin {:id id :admin (= value "admin")}) {:class "success" :message "User role changed succesfully!"})
+      (= field "is_active") (return-fn #(db/update-user-is-active {:id id :is_active value}) {:class "success" :message "User status changed successfully!"})
+    :else
+      (return-fn nil {:class "danger" :message "This is a flash message"}))))
 
 (defn reset-password [request id]
   (let [password (auth/generate-random-password 8)

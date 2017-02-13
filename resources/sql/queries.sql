@@ -46,3 +46,15 @@ WHERE email <> :email AND admin = false
 SELECT email FROM users
 WHERE id = :id
 
+-- :name update-user-admin :! :n
+-- :doc update an existing user's password
+UPDATE users
+SET admin = :admin
+WHERE id = :id
+
+-- :name update-user-is-active :! :n
+-- :doc update an existing user's password
+UPDATE users
+SET is_active = :is_active
+WHERE id = :id
+
