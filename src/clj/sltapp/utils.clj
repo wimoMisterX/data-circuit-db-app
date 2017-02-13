@@ -1,4 +1,5 @@
-(ns sltapp.utils)
+(ns sltapp.utils
+  (:require [ring.util.response :refer [redirect]]))
 
 (defn contains-many? [m & ks]
   (every? #(contains? m %) ks))
