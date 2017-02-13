@@ -1,5 +1,5 @@
 (ns sltapp.routes.home
-  (:require [sltapp.layout :refer [render base-context]]
+  (:require [sltapp.layout :refer [render base-context-authenticated-access]]
             [compojure.core :refer [defroutes GET POST]]
             [ring.util.http-response :as response]
             [ring.util.response :refer [redirect]]
@@ -11,7 +11,7 @@
             [clojure.java.io :as io]))
 
 (defn home-page [request]
-  (render (home-templates/home (base-context request))))
+  (render (home-templates/home (base-context-authenticated-access request))))
 
 (defroutes home-routes
   (GET "/" [] home-page))

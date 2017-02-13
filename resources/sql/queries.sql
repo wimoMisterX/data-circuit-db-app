@@ -39,7 +39,7 @@ WHERE id = :id
 -- :name get-user-list :? :*
 -- :doc selects all available users execpt for current user
 SELECT * FROM users
-WHERE email <> :email
+WHERE email <> :email AND admin = false
 
 -- :name get-user-by-id :? :1
 -- :doc retrieve a user given the id.

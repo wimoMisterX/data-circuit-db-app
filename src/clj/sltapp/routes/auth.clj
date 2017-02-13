@@ -1,5 +1,5 @@
 (ns sltapp.routes.auth
-  (:require [sltapp.layout :refer [render base-context]]
+  (:require [sltapp.layout :refer [render base-context-authenticated-access base-context-any-access]]
             [compojure.core :refer [defroutes GET POST]]
             [sltapp.utils :refer [get-next-url]]
             [ring.util.response :refer [redirect]]
@@ -10,19 +10,28 @@
             [buddy.hashers :as hashers]
             [clojure.java.io :as io]))
 
-(defn login-page [request]
-  (render (auth-templates/login {:next (get-next-url request)})))
+(defn login-page [request next]
+  (render (auth-templates/login (merge
+                                  (base-context-any-access request)
+                                  {:next next
+                                   :errors (-> request :flash :form_errors)}))))
 
 (defn register-page [request]
-  (render (auth-templates/register (base-context request))))
+  (render (auth-templates/register (merge
+                                     (base-context-authenticated-access request)
+                                     {:errors (-> request :flash :form_errors)}))))
 
 (defn profile-page [request]
-  (render (auth-templates/profile (base-context request))))
+  (render (auth-templates/profile (base-context-authenticated-access request))))
 
 (defn manage-users-page [request]
   (render (auth-templates/manage-users (merge
-                                         (base-context request)
+                                         (base-context-authenticated-access request)
                                          {:user_list (db/get-user-list {:email (-> request :identity :email)})}))))
+
+(defn modify-user [request id field value]
+  (-> (redirect "/manage-users")
+      (assoc-in [:flash :alerts] [{:class "danger" :message "This is a flash message"}])))
 
 (defn reset-password [request id]
   (let [password (auth/generate-random-password 8)
@@ -30,7 +39,7 @@
     (db/update-user-password-id! {:password (auth/encrypt-password password)
                                   :id id})
     (render (auth-templates/reset-password (merge
-                                             (base-context request)
+                                             (base-context-authenticated-access request)
                                              {:alerts [{:class "success" :message "Password reset successfully"}]
                                               :email (:email user)
                                               :password password})))))
@@ -43,7 +52,7 @@
       (if valid_form (db/update-user-password-email! {:password (auth/encrypt-password (-> request :params :new_password))
                                                       :email (-> request :identity :email)}))
       (render (auth-templates/profile (merge
-                                        (base-context request)
+                                        (base-context-authenticated-access request)
                                         {:alerts [{:class (if valid_form "success" "danger")  :message (if valid_form "Password updated successfully" "Invalid")}]
                                          :errors (validators/get-errors form)}))))))
 
@@ -60,37 +69,40 @@
              :password (auth/encrypt-password password)
              :admin (= "Admin" (:role user-fields))
              :is_active true})
-          (render (auth-templates/register-success {:alerts [{:class "success" :message "User registerd successfully"}]
-                                                    :email email
-                                                    :password password}))))
-      (render (auth-templates/register (merge
-                                         (base-context request)
-                                         {:errors (validators/get-errors user)}))))))
+          (render (auth-templates/register-success (merge
+                                                     (base-context-authenticated-access request)
+                                                     {:alerts [{:class "success" :message "User registerd successfully"}]
+                                                      :email email
+                                                      :password password})))))
+      (-> (redirect "/register")
+          (assoc-in [:flash :form_errors] (validators/get-errors user))))))
 
-(defn login-user [request]
+(defn login-user [request next]
   (let [cleaned-user (validators/validate-user-login (:params request))]
     (if (validators/valid? cleaned-user)
       (let [user (db/get-user (last cleaned-user))]
         (if (and user (hashers/check (:password (last cleaned-user)) (:password user)))
-          (-> (redirect (get-next-url request))
+          (-> (redirect next)
               (assoc-in [:session :identity] (select-keys user [:email :admin :first_name :last_name])))
-          (render (auth-templates/login {:next (get-next-url request)
-                                         :alerts [{:class "danger" :message "Invalid email/password"}]}))))
-      (render (auth-templates/login {:next (get-next-url request)
-                                     :errors (validators/get-errors cleaned-user)})))))
+          (-> (redirect (str "/login?next=" next))
+              (assoc-in [:flash :alerts] [{:class "danger" :message "Invalid email/password"}]))))
+      (-> (redirect (str "/login?next=" next))
+          (assoc-in [:flash :form_errors] (validators/get-errors cleaned-user))))))
 
 (defn logout [request]
   (-> (redirect "/login")
-      (assoc :session {})))
+      (assoc :session {})
+      (assoc-in [:flash :alerts] [{:class "success" :message "Logged out successfully!"}])))
 
 (defroutes auth-routes
-  (POST "/login" [] login-user)
+  (POST "/login" [next :as r] (login-user r next))
   (GET "/register" [] register-page)
   (POST "/register" [] register-user)
   (GET "/logout" [] logout)
   (GET "/profile" [] profile-page)
   (GET "/manage-users" [] manage-users-page)
-  (GET "/reset-password/:id{[0-9]+}" [request id] (reset-password request id))
+  (GET "/reset-password/:id{[0-9]+}" [id :as r] (reset-password r id))
+  (GET "/modify-user/:id{[0-9]+}/:field{[a-z_]+}/:value{[0-9a-zA-Z]+}" [id field value :as r] (modify-user r id field value))
   (POST "/change-password" [] change-password)
-  (GET "/login" [] login-page))
+  (GET "/login" [next :as r] (login-page r next)))
 

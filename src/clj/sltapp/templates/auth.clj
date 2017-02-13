@@ -13,7 +13,7 @@
                (form-to {:class "form-signin"} [:post (str "/login?next=" (:next params))]
                 (anti-forgery-field)
                 [:h2 {:class "form-signin-heading"} "Please Login"]
-                (render-alerts (:alerts params))
+                (render-alerts (:flash_alerts params))
                 [:div {:class "input-group margin-bottom-sm"}
                  [:span {:class "input-group-addon"}
                   [:i {:class "fa fa-envelope-o fa-fw"}]]
@@ -83,18 +83,16 @@
                                 [:th "First Name"]
                                 [:th "Last Name"]
                                 [:th "Email"]
-                                [:th "Role"]
                                 [:th "Actions"]]]
                               [:tbody
                                (for [user (:user_list params)] [:tr
                                                                 [:td (:first_name user)]
                                                                 [:td (:last_name user)]
                                                                 [:td (:email user)]
-                                                                [:td (if (:admin user) "Admin" "User")]
                                                                 [:td {:class "action-spacing"}
                                                                  [:a {:href (str "/reset-password/" (:id user))} "Reset Password"]
-                                                                 [:a {:href (str "/change-role/" (:id user) "/" (if (:admin user) "user" "admin"))} (if (:admin user) "Make user" "Make admin")]
-                                                                 [:a {:href (str "/change-status/" (:id user) "/" (if (:is_active user) "deactivate" "activate"))} (if (:is_active user) "Deactivate user" "Activate user")]]])]]]})))
+                                                                 [:a {:href (str "/modify-user/" (:id user) "/role/admin")} "Make admin"]
+                                                                 [:a {:href (str "/modify-user/" (:id user) "/is_active/" (not (:is_active user)))} (if (:is_active user) "Deactivate user" "Activate user")]]])]]]})))
 
 (defn reset-password [params]
   (base-home (merge

@@ -22,6 +22,10 @@
    :headers {"Content-Type" "text/html; charset=utf-8"}
    :body    (base-templates/error-page error-details)})
 
-(defn base-context [request]
+(defn base-context-authenticated-access [request]
   {:admin (-> request :session :identity :admin)
-   :full_name (str (-> request :session :identity :first_name) " " (-> request :session :identity :last_name))})
+   :full_name (str (-> request :session :identity :first_name) " " (-> request :session :identity :last_name))
+   :flash_alerts (-> request :flash :alerts)})
+
+(defn base-context-any-access [request]
+  {:flash_alerts (-> request :flash :alerts)})
