@@ -22,7 +22,7 @@
                     [:span {:class "icon-bar"}]
                     [:span {:class "icon-bar"}]
                     [:span {:class "icon-bar"}]]
-                   [:a {:class "navbar-brand" :href "#"} "Slt App"]]
+                   [:a {:class "navbar-brand" :href "#"} "Data Circuit Database App"]]
                   [:div {:id "navbar" :class "collapse navbar-collapse"}
                    [:ul {:class "nav navbar-nav navbar-right"}
                     (nav-pills (:active_page params) [{:href "/profile" :value "Profile"}

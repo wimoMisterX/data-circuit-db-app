@@ -5,7 +5,7 @@
 (defn base-app [title context]
   (html5 {:lang "en"}
          [:head
-          [:title (str "SLT APP - " title)]
+          [:title (str "Data Circuit Database App - " title)]
           (include-css "/assets/bootstrap/css/bootstrap.min.css")
           (include-css "/assets/font-awesome/css/font-awesome.min.css")
           (:extrahead context)]
