@@ -82,7 +82,7 @@
     (if (validators/valid? cleaned-user)
       (let [user (db/get-user (last cleaned-user))]
         (if (and user (hashers/check (:password (last cleaned-user)) (:password user)))
-          (-> (redirect next)
+          (-> (redirect (if (clojure.string/blank? next) "/" next))
               (assoc-in [:session :identity] (select-keys user [:email :admin :first_name :last_name])))
           (-> (redirect (str "/login?next=" next))
               (assoc-in [:flash :alerts] [{:class "danger" :message "Invalid email/password"}]))))
