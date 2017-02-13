@@ -16,12 +16,12 @@ A web app developed for assisting Mobitel in circuit management.
 
 ## Running
 
-1. Add database url to enviroment
+Add database url to enviroment
 ```
 export DATABASE_URL="jdbc:h2:./app.db"
 ```
 
-2. Create an admin account:
+Create an admin account:
 ```
 lein createadmin [options]
     -f, --first_name  First Name
@@ -30,12 +30,12 @@ lein createadmin [options]
     -p, --password    Password
 ```
 
-3. Run migrations
+Run migrations
 ```
 lein run migrate
 ```
 
-4. To start a web server for the application, run:
+To start a web server for the application, run:
 ```
 lein run [options]
     -p, --port    Port
