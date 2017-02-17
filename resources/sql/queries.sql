@@ -20,3 +20,13 @@ WHERE email <> :email AND admin = false
 UPDATE users
 SET :i:col = :value
 WHERE :i:id-field = :id-value
+
+-- :name get-connected-circuit-list :? :*
+-- :doc get all connected circuits
+SELECT * FROM circuit
+WHERE state = 'connected'
+
+-- :name get-disconnected-circuit-list :? :*
+-- :doc get all disconnected circuits
+SELECT * FROM circuit
+WHERE state = 'disconnected'

@@ -1,6 +1,7 @@
 (ns sltapp.templates.home
  (:require [ring.util.anti-forgery :refer [anti-forgery-field]]
-           [sltapp.templates.base :refer [base-app render-error render-alerts]])
+           [sltapp.templates.base :refer [base-app render-error render-alerts form-group]]
+           [sltapp.utils :as utils])
  (:use [hiccup.page :only (html5 include-css include-js)]
        [hiccup.util :only (escape-html)]
        [hiccup.form :only (text-field password-field submit-button form-to drop-down)]))
@@ -33,11 +34,8 @@
                   [:div {:class "col-sm-3 col-md-2 sidebar"}
                    [:ul {:class "nav nav-sidebar"}
                     (nav-pills (:active_page params) [{:href "/" :value "Home"}
-                                                      {:href "/form1" :value "New Circuit Commissioning"}
-                                                      {:href "/form2" :value "BW Changing"}
-                                                      {:href "/form3" :value "VPLS Changing"}
-                                                      {:href "/form4" :value "Device Changing"}
-                                                      {:href "/form5" :value "Disconnecting"}
+                                                      {:href "/connected-circuits" :value "Connected Circuits"}
+                                                      {:href "/disconnected-circuits" :value "Disconnected Circuits"}
                                                       (if (:admin params) {:href "/register" :value "Register a User"})
                                                       (if (:admin params) {:href "/manage-users" :value "Manage Users"})])]]
                   [:div {:class "col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"}
@@ -53,3 +51,45 @@
                 :page_header (str "Welcome " (first (clojure.string/split (:full_name params) #"\s")))
                 :main_content [:div {:class "row"}]})))
 
+(defn new-circuit-connecting [params]
+  (base-home (merge
+               params
+               {:title "New Circuit Connecting"
+                :active_page "Connected Circuits"
+                :page_header "New Circuit Connecting"
+                :main_content (form-to {:class "form-horizontal"} ["POST" "/new-circuit-connecting"]
+                               (anti-forgery-field)
+                               (for [field (:fields params)]
+                                (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control"} field) nil))
+                               (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))})))
+
+(defn edit-circuit [params]
+  (base-home (merge
+               params
+               {:title "Edit Circuit"
+                :active_page "Connected Circuits"
+                :page_header "Edit Circuit"
+                :main_content [:div
+                               [:div {:class "form-horizontal info-form"}
+                                (for [field (:info_fields params)]
+                                 (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control" :disabled true} nil) nil))]
+                               (for [form-type (seq (:form_to_fields params))]
+                                (let [title (name (first form-type)) fields (last form-type)]
+                                 (form-to {:class "form-horizontal"} ["PUT" (str "/edit-circuit/" title)]
+                                  (anti-forgery-field)
+                                  [:h3 (utils/db-field-to-verbose-name title)]
+                                  (for [field fields]
+                                   (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control" :disabled (contains? (set (:disabled_fields params)) field)} field) nil))
+                                  (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))))]})))
+
+(defn connected-circuits [params]
+  (base-home (merge
+               params
+               {:title "Connected Circuits"
+                :active_page "Connected Circuits"
+                :page_header "Connected Circuits"
+                :main_content [:div
+                               [:div {:class "row"}
+                                [:a {:class "btn btn-primary" :href "/new-circuit-connecting"} "New Circuit Connecting"]]
+                               [:table {:class "table"}
+                                [:thead (for [header (:table_headers params)] [:th header])]]]})))

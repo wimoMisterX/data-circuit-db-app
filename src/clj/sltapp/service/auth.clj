@@ -35,6 +35,12 @@
              :handler authenticated-user}
             {:pattern #"^/profile$"
              :handler authenticated-user}
+            {:pattern #"^/connected-circuits$"
+             :handler authenticated-user}
+            {:pattern #"^/new-circuit-connecting$"
+             :handler authenticated-user}
+            {:pattern #"^/edit-circuit"
+             :handler authenticated-user}
             {:pattern #"^/manage-users$"
              :handler admin-access}
             {:pattern #"^/reset-password/[0-9]+$"
