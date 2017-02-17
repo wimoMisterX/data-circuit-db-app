@@ -93,3 +93,13 @@
                                 [:a {:class "btn btn-primary" :href "/new-circuit-connecting"} "New Circuit Connecting"]]
                                [:table {:class "table"}
                                 [:thead (for [header (:table_headers params)] [:th header])]]]})))
+
+(defn disconnected-circuits [params]
+  (base-home (merge
+               params
+               {:title "Disconnected Circuits"
+                :active_page "Disconnected Circuits"
+                :page_header "Disconnected Circuits"
+                :main_content [:div
+                               [:table {:class "table"}
+                                [:thead (for [header (:table_headers params)] [:th header])]]]})))

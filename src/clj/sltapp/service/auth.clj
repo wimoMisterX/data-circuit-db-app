@@ -35,7 +35,7 @@
              :handler authenticated-user}
             {:pattern #"^/profile$"
              :handler authenticated-user}
-            {:pattern #"^/connected-circuits$"
+            {:pattern #"^/(?:disc|c)onnected-circuits$"
              :handler authenticated-user}
             {:pattern #"^/new-circuit-connecting$"
              :handler authenticated-user}

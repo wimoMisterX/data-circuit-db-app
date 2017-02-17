@@ -19,6 +19,12 @@
                                               {:table_headers (map utils/db-field-to-verbose-name (apply concat (vals form_to_field_map)))
                                                :circuit-list (db/get-connected-circuit-list)}))))
 
+(defn disconnected-circuits-page [request]
+  (render (home-templates/disconnected-circuits (merge
+                                                  (base-context-authenticated-access request)
+                                                  {:table_headers (map utils/db-field-to-verbose-name (apply concat (vals form_to_field_map)))
+                                                   :circuit-list (db/get-disconnected-circuit-list)}))))
+
 (defn new-circuit-connecting-page [request]
   (render (home-templates/new-circuit-connecting (merge
                                                   (base-context-authenticated-access request)
@@ -35,4 +41,5 @@
   (GET "/" [] home-page)
   (GET "/new-circuit-connecting" [] new-circuit-connecting-page)
   (GET "/edit-circuit" [] edit-circuit-page)
-  (GET "/connected-circuits" [] connected-circuits-page))
+  (GET "/connected-circuits" [] connected-circuits-page)
+  (GET "/disconnected-circuits" [] disconnected-circuits-page))
