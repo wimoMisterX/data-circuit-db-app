@@ -1,6 +1,10 @@
 (ns sltapp.utils
   (:require [ring.util.response :refer [redirect]]
             [sltapp.validators :as validators]
+            [clj-time.core :as t]
+            [clj-time.local :as l]
+            [clj-time.coerce :as c]
+            [clj-time.format :as f]
             [clojure.string :as string]))
 
 (defn contains-many? [m & ks]
@@ -32,3 +36,14 @@
             (assoc-in [:flash :alerts] [alert])))
       (-> (redirect (or (first error_url) url))
           (assoc-in [:flash :form_errors] (validators/get-errors cleaned-obj))))))
+
+(defn sql-time-to-local-time [dt]
+  (f/unparse (f/formatter-local "yyyy-MM-dd HH:mm:ss") (t/to-time-zone (c/from-sql-time dt) (t/time-zone-for-id "Asia/Colombo"))))
+
+(defn format-values [value_map]
+  (reduce
+    #(merge
+      %1
+      {(first %2) (if (and (not (nil? (last %2))) (string/includes? (name (first %2)) "_date")) (sql-time-to-local-time (last %2)) (last %2))})
+    {}
+    (seq value_map)))

@@ -39,7 +39,7 @@
              :handler authenticated-user}
             {:pattern #"^/new-circuit-connecting$"
              :handler authenticated-user}
-            {:pattern #"^/edit-circuit"
+            {:pattern #"^/edit-circuit/[0-9]+$"
              :handler authenticated-user}
             {:pattern #"^/manage-users$"
              :handler admin-access}

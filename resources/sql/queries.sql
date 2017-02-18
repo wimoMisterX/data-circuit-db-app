@@ -84,3 +84,9 @@ update :i:table set
       " = :v:updates." (name field))))
 ~*/
 where id = :id
+
+-- :name circuit-in-state :? :1
+-- :doc check if circuit in state
+SELECT id
+FROM circuit
+WHERE state = :state AND id = :id

@@ -42,11 +42,11 @@
     :site_name v/required
     :slt_ip_circuit_no v/required
     :type v/required
-    :current_bandwidth_mpbs v/required
+    :current_bandwidth_mpbs [v/number v/positive v/required]
     :qos_profile v/required
     :current_vpls_id v/required
     :status v/required
-    :commissioned_under_project v/required))
+    :commissioned_under_project v/string))
 
 (defn validate-bw-changing [circuit]
   (b/validate

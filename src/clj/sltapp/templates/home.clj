@@ -1,6 +1,7 @@
 (ns sltapp.templates.home
  (:require [ring.util.anti-forgery :refer [anti-forgery-field]]
            [sltapp.templates.base :refer [base-app render-error render-alerts form-group]]
+           [sltapp.constants :refer [get-form-element]]
            [sltapp.utils :as utils])
  (:use [hiccup.page :only (html5 include-css include-js)]
        [hiccup.util :only (escape-html)]
@@ -61,7 +62,10 @@
                 :main_content (form-to {:class "form-horizontal"} ["POST" "/new-circuit-connecting"]
                                (anti-forgery-field)
                                (for [field (:fields params)]
-                                (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control"} field) (get (:errors params) (keyword field))))
+                                (form-group
+                                  (utils/db-field-to-verbose-name field)
+                                  (get-form-element field "" false)
+                                  (get (:errors params) (keyword field))))
                                (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))})))
 
 (defn edit-circuit [params]
@@ -73,7 +77,7 @@
                 :main_content [:div
                                [:div {:class "form-horizontal info-form"}
                                 (for [field (:info_fields params)]
-                                 (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control" :disabled true} nil (get (:values params) (keyword field))) nil))]
+                                 (form-group (utils/db-field-to-verbose-name field) [:p {:class "form-control-static"} (get (:values params) (keyword field))] nil))]
                                (for [form-type (seq (:form_to_fields params))]
                                 (let [title (name (first form-type)) fields (last form-type)]
                                  (form-to {:class "form-horizontal"} ["PUT" (str "/edit-circuit/" (-> params :values :id) "/" title)]
@@ -82,7 +86,7 @@
                                   (for [field fields]
                                    (form-group
                                      (utils/db-field-to-verbose-name field)
-                                     (text-field {:class "form-control" :disabled (contains? (set (:disabled_fields params)) field)} field (get (:values params) (keyword field)))
+                                     (get-form-element field (get (:values params) (keyword field)) (contains? (set (:disabled_fields params)) field))
                                      (get (:errors params) (keyword field))))
                                   (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))))]})))
 
