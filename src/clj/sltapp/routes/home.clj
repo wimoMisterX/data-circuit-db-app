@@ -37,6 +37,7 @@
   (render (home-templates/edit-circuit (merge
                                         (base-context-authenticated-access request)
                                         {:values (db/get-circuit-info {:id id})
+                                         :errors (-> request :flash :form_errors)
                                          :info_fields (:new_circuit_connecting form_to_field_map)
                                          :disabled_fields (apply concat (vals auto_fill_fields))
                                          :form_to_fields (dissoc form_to_field_map :new_circuit_connecting)}))))
@@ -54,7 +55,39 @@
           (assoc-in [:flash :form_errors] (validators/get-errors cleaned-circuit))))))
 
 (defn update-circuit [request id form]
-  (-> (redirect (str "/edit-circuit/" id))))
+  (let [return-fn (partial utils/validate-form-redirect (str "/edit-circuit/" id))]
+    (cond
+      (= form "bw_changing") (return-fn
+                               #(validators/validate-bw-changing (:params request))
+                               #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:bandwidth_change_reason (-> request :params :bandwidth_change_reason)
+                                                                                               :bandwidth_change_date (c/to-sql-time (l/local-now))
+                                                                                               :bandwidth_update_by_id (-> request :session :identity :id)}})
+                               {:class "success" :message "Bw Changing details saved!"})
+      (= form "vpls_changing") (return-fn
+                                 #(validators/validate-vpls-changing (:params request))
+                                 #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:vpls_changed_reason (-> request :params :vpls_changed_reason)
+                                                                                                 :vpls_changed_date (c/to-sql-time (l/local-now))
+                                                                                                 :vpls_changed_by_id (-> request :session :identity :id)}})
+                                 {:class "success" :message "Vpls Changing details saved!"})
+      (= form "device_changing") (return-fn
+                                   #(validators/validate-device-changing (:params request))
+                                   #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:new_device_connected_reason (-> request :params :new_device_connected_reason)
+                                                                                                   :new_device_connected_date (c/to-sql-time (l/local-now))
+                                                                                                   :new_device_connected_by_id (-> request :session :identity :id)}})
+                                   {:class "success" :message "Device Changing details saved!"})
+      (= form "disconnecting") (utils/validate-form-redirect
+                                 "/disconnected-circuits"
+                                 #(validators/validate-disconnecting (:params request))
+                                 #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:state "disconnected"
+                                                                                                 :disconnected_reason (-> request :params :disconnected_reason)
+                                                                                                 :comments (-> request :params :comments)
+                                                                                                 :disconnected_date (c/to-sql-time (l/local-now))
+                                                                                                 :disconnected_by_id (-> request :session :identity :id)}})
+                                 {:class "success" :message "Circuit is disconneted!"}
+                                 (str "/edit-circuit/" id))
+    :else
+      (-> (redirect (str "/edit-circuit/" id))
+          (assoc-in [:flash :alerts] [{:class "danger" :message "Invalid circuit edit type"}])))))
 
 (defroutes home-routes
   (GET "/" [] home-page)

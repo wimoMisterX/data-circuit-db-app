@@ -48,3 +48,23 @@
     :status v/required
     :commissioned_under_project v/required))
 
+(defn validate-bw-changing [circuit]
+  (b/validate
+    circuit
+    :bandwidth_change_reason v/required))
+
+(defn validate-vpls-changing [circuit]
+  (b/validate
+    circuit
+    :vpls_changed_reason v/required))
+
+(defn validate-device-changing [circuit]
+  (b/validate
+    circuit
+    :new_device_connected_reason v/required))
+
+(defn validate-disconnecting [circuit]
+  (b/validate
+    circuit
+    :disconnected_reason v/required
+    :comments v/required))

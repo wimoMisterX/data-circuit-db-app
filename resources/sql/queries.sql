@@ -73,3 +73,14 @@ INSERT INTO circuit
 (site_id, site_name, slt_ip_circuit_no, type, current_bandwidth_mpbs, qos_profile, current_vpls_id, status, commissioned_date, commissioned_by_id, commissioned_under_project, state)
 VALUES (:site_id, :site_name, :slt_ip_circuit_no, :type, :current_bandwidth_mpbs, :qos_profile, :current_vpls_id, :status, :commissioned_date, :commissioned_by_id, :commissioned_under_project, :state)
 
+-- :name clj-expr-generic-update :! :n
+/* :require [clojure.string :as string]
+            [hugsql.parameters :refer [identifier-param-quote]] */
+update :i:table set
+/*~
+(string/join ","
+  (for [[field _] (:updates params)]
+    (str (identifier-param-quote (name field) options)
+      " = :v:updates." (name field))))
+~*/
+where id = :id

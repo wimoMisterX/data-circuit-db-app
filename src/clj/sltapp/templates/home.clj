@@ -80,7 +80,10 @@
                                   (anti-forgery-field)
                                   [:h3 (utils/db-field-to-verbose-name title)]
                                   (for [field fields]
-                                   (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control" :disabled (contains? (set (:disabled_fields params)) field)} field (get (:values params) (keyword field))) nil))
+                                   (form-group
+                                     (utils/db-field-to-verbose-name field)
+                                     (text-field {:class "form-control" :disabled (contains? (set (:disabled_fields params)) field)} field (get (:values params) (keyword field)))
+                                     (get (:errors params) (keyword field))))
                                   (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))))]})))
 
 (defn connected-circuits [params]

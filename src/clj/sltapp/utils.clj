@@ -1,5 +1,6 @@
 (ns sltapp.utils
   (:require [ring.util.response :refer [redirect]]
+            [sltapp.validators :as validators]
             [clojure.string :as string]))
 
 (defn contains-many? [m & ks]
@@ -21,3 +22,13 @@
 
 (defn db-field-map-to-verbose-name [kw fields]
   {(keyword (db-field-to-verbose-name kw)) (map db-field-to-verbose-name fields)})
+
+(defn validate-form-redirect [url validate-func db-func alert & error_url]
+  (let [cleaned-obj (validate-func)]
+    (if (validators/valid? cleaned-obj)
+      (do
+        (db-func)
+        (-> (redirect url)
+            (assoc-in [:flash :alerts] [alert])))
+      (-> (redirect (or (first error_url) url))
+          (assoc-in [:flash :form_errors] (validators/get-errors cleaned-obj))))))
