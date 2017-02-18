@@ -35,3 +35,16 @@
     (hashers/check (:current_password form) current_password)
     (= (:new_password form) (:confirm_new_password form))))
 
+(defn validate-new-circuit [circuit]
+  (b/validate
+    circuit
+    :site_id v/required
+    :site_name v/required
+    :slt_ip_circuit_no v/required
+    :type v/required
+    :current_bandwidth_mpbs v/required
+    :qos_profile v/required
+    :current_vpls_id v/required
+    :status v/required
+    :commissioned_under_project v/required))
+

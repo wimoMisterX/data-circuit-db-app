@@ -34,6 +34,7 @@
                   [:div {:class "col-sm-3 col-md-2 sidebar"}
                    [:ul {:class "nav nav-sidebar"}
                     (nav-pills (:active_page params) [{:href "/" :value "Home"}
+                                                      {:href "/new-circuit-connecting" :value "New Circuit Connecting"}
                                                       {:href "/connected-circuits" :value "Connected Circuits"}
                                                       {:href "/disconnected-circuits" :value "Disconnected Circuits"}
                                                       (if (:admin params) {:href "/register" :value "Register a User"})
@@ -55,12 +56,12 @@
   (base-home (merge
                params
                {:title "New Circuit Connecting"
-                :active_page "Connected Circuits"
+                :active_page "New Circuit Connecting"
                 :page_header "New Circuit Connecting"
                 :main_content (form-to {:class "form-horizontal"} ["POST" "/new-circuit-connecting"]
                                (anti-forgery-field)
                                (for [field (:fields params)]
-                                (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control"} field) nil))
+                                (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control"} field) (get (:errors params) (keyword field))))
                                (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))})))
 
 (defn edit-circuit [params]
@@ -89,10 +90,14 @@
                 :active_page "Connected Circuits"
                 :page_header "Connected Circuits"
                 :main_content [:div
-                               [:div {:class "row"}
-                                [:a {:class "btn btn-primary" :href "/new-circuit-connecting"} "New Circuit Connecting"]]
-                               [:table {:class "table"}
-                                [:thead (for [header (:table_headers params)] [:th header])]]]})))
+                               [:table {:class "table table-bordered table-condensed table-hover"}
+                                [:thead (for [header (:table_headers params)] [:th {:class "fit-column"} (utils/db-field-to-verbose-name header)])]
+                                [:tbody
+                                 (for [row (:rows params)]
+                                  [:tr
+                                   [:td [:a {:href (str "/edit-circuit/" (:id row))} (:site_id row)]]
+                                   (for [header (remove #{"site_id"} (:table_headers params))]
+                                    [:td (get row (keyword header))])])]]]})))
 
 (defn disconnected-circuits [params]
   (base-home (merge
@@ -101,5 +106,10 @@
                 :active_page "Disconnected Circuits"
                 :page_header "Disconnected Circuits"
                 :main_content [:div
-                               [:table {:class "table"}
-                                [:thead (for [header (:table_headers params)] [:th header])]]]})))
+                               [:table {:class "table table-bordered table-hover"}
+                                [:thead (for [header (:table_headers params)] [:th {:class "fit-column"} (utils/db-field-to-verbose-name header)])]
+                                [:tbody
+                                 (for [row (:rows params)]
+                                  [:tr
+                                   (for [header (:table_headers params)]
+                                    [:td (get row (keyword header))])])]]]})))

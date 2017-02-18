@@ -28,6 +28,7 @@
                  [ring/ring-defaults "0.2.2"]
                  [hiccup "1.0.5"]
                  [buddy/buddy-auth "1.4.1"]
+                 [clj-time "0.13.0"]
                  [buddy/buddy-hashers "1.2.0"]]
 
   :min-lein-version "2.0.0"
