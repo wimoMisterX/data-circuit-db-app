@@ -73,14 +73,14 @@
                 :main_content [:div
                                [:div {:class "form-horizontal info-form"}
                                 (for [field (:info_fields params)]
-                                 (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control" :disabled true} nil) nil))]
+                                 (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control" :disabled true} nil (get (:values params) (keyword field))) nil))]
                                (for [form-type (seq (:form_to_fields params))]
                                 (let [title (name (first form-type)) fields (last form-type)]
-                                 (form-to {:class "form-horizontal"} ["PUT" (str "/edit-circuit/" title)]
+                                 (form-to {:class "form-horizontal"} ["PUT" (str "/edit-circuit/" (-> params :values :id) "/" title)]
                                   (anti-forgery-field)
                                   [:h3 (utils/db-field-to-verbose-name title)]
                                   (for [field fields]
-                                   (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control" :disabled (contains? (set (:disabled_fields params)) field)} field) nil))
+                                   (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control" :disabled (contains? (set (:disabled_fields params)) field)} field (get (:values params) (keyword field))) nil))
                                   (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))))]})))
 
 (defn connected-circuits [params]

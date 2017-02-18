@@ -36,7 +36,8 @@
 (defn edit-circuit-page [request id]
   (render (home-templates/edit-circuit (merge
                                         (base-context-authenticated-access request)
-                                        {:info_fields (:new_circuit_connecting form_to_field_map)
+                                        {:values (db/get-circuit-info {:id id})
+                                         :info_fields (:new_circuit_connecting form_to_field_map)
                                          :disabled_fields (apply concat (vals auto_fill_fields))
                                          :form_to_fields (dissoc form_to_field_map :new_circuit_connecting)}))))
 
@@ -52,10 +53,14 @@
       (-> (redirect "/new-circuit-connecting")
           (assoc-in [:flash :form_errors] (validators/get-errors cleaned-circuit))))))
 
+(defn update-circuit [request id form]
+  (-> (redirect (str "/edit-circuit/" id))))
+
 (defroutes home-routes
   (GET "/" [] home-page)
   (GET "/new-circuit-connecting" [] new-circuit-connecting-page)
   (POST "/new-circuit-connecting" [] add-circuit)
   (GET "/edit-circuit/:id{[0-9]+}" [id :as r] (edit-circuit-page r id))
+  (PUT "/edit-circuit/:id{[0-9]+}/:form{[a-z_]+}" [id form :as r] (update-circuit r id form))
   (GET "/connected-circuits" [] connected-circuits-page)
   (GET "/disconnected-circuits" [] disconnected-circuits-page))
