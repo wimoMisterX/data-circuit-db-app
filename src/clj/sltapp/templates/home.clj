@@ -98,6 +98,8 @@
                 :active_page "Connected Circuits"
                 :page_header "Connected Circuits"
                 :main_content [:div
+                               [:div {:class "pull-left"}
+                                [:a {:class "btn btn-primary pull-left" :href (str "/export-csv/connected?q=" (:search params))} "Export to CSV"]]
                                (form-to {:class "form-inline search-box"} ["GET" "/circuit-search/connected"]
                                  (anti-forgery-field)
                                  [:div {:class "input-group"}
@@ -119,6 +121,8 @@
                 :active_page "Disconnected Circuits"
                 :page_header "Disconnected Circuits"
                 :main_content [:div
+                               [:div {:class "pull-left"}
+                                [:a {:class "btn btn-primary pull-left" :href (str "/export-csv/disconnected?q=" (:search params))} "Export to CSV"]]
                                (form-to {:class "form-inline search-box"} ["GET" "/circuit-search/disconnected"]
                                  (anti-forgery-field)
                                  [:div {:class "input-group"}

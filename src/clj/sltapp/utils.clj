@@ -62,7 +62,7 @@
     (reduce
       #(merge
         %1
-        {(first %2) (if (and (not (nil? (last %2))) (string/includes? (name (first %2)) "_date")) (format-time (last %2)) (last %2))})
+        {(first %2) (if (and (not (nil? (last %2))) (string/includes? (name (first %2)) "_date")) (str (format-time (last %2))) (str (last %2)))})
       {}
       (seq value_map))))
 

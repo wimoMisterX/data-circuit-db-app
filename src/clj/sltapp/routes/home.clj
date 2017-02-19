@@ -9,10 +9,13 @@
             [sltapp.utils :as utils]
             [sltapp.templates.home :as home-templates]
             [clojure.data.json :as json]
+            [clojure-csv.core :as csv]
             [clj-time.core :as t]
             [clj-time.local :as l]
             [clj-time.coerce :as c]
             [clj-time.format :as f]
+            [buddy.core.hash :as hash]
+            [buddy.core.codecs :refer :all]
             [clojure.string :as string]))
 
 (defn home-page [request]
@@ -120,6 +123,14 @@
 (defn circuit-search [state q]
   (redirect (str "/" state "-circuits?q=" q)))
 
+(defn export-csv [request state q]
+  (let [table_headers (distinct (apply concat (vals (if (= state "connected") (dissoc form_to_field_map :disconnecting) form_to_field_map))))
+        rows (map utils/format-values (search-circuits state q))]
+    {:status  200
+     :headers {"Content-Type" "text/csv"
+               "Content-Disposition" (str "attachment;filename=" (-> (hash/sha256 (c/to-string (t/now))) (bytes->hex))  ".csv")}
+     :body    (csv/write-csv (into [(map utils/db-field-to-verbose-name table_headers)] (for [row rows] (for [header table_headers] (get row (keyword header))))))}))
+
 (defroutes home-routes
   (GET "/" [] home-page)
   (GET "/new-circuit-connecting" [] new-circuit-connecting-page)
@@ -130,4 +141,5 @@
   (GET "/app-settings" [] app-settings-page)
   (GET "/disconnected-circuits" [q :as r] (disconnected-circuits-page r q))
   (GET "/circuit-search/:state{(connected|disconnected)}" [state q] (circuit-search state q))
+  (GET "/export-csv/:state{(connected|disconnected)}" [state q :as r] (export-csv r state q))
   (PUT "/update-app-settings" [] update-app-settings))
