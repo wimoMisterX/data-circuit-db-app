@@ -64,19 +64,21 @@
     (if (utils/valid? user)
       (let [user-fields (last user)]
         (let [email (:email user-fields)
-              password (auth/generate-random-password 8)]
-          (db/create-user!
-            {:first_name (:first_name user-fields)
-             :last_name (:last_name user-fields)
-             :email email
-             :password (auth/encrypt-password password)
-             :admin (= "Admin" (:role user-fields))
-             :is_active true})
-          (render (auth-templates/register-success (merge
-                                                     (base-context-authenticated-access request)
-                                                     {:alerts [{:class "success" :message "User registerd successfully"}]
-                                                      :email email
-                                                      :password password})))))
+              password (auth/generate-random-password 8)
+              unique (empty? (db/get-user {:id-field "email" :id-value (:email user-fields) :cols ["id"]}))]
+          (if unique
+            (db/create-user!
+              {:first_name (:first_name user-fields)
+               :last_name (:last_name user-fields)
+               :email email
+               :password (auth/encrypt-password password)
+               :admin (= "Admin" (:role user-fields))
+               :is_active true}))
+          (render ((if unique auth-templates/register-success auth-templates/register)
+                     (merge (base-context-authenticated-access request)
+                            {:alerts [{:class (if unique "success" "danger") :message (if unique "User registerd successfully" "A user with this email already exists")}]
+                             :email email
+                             :password password})))))
       (-> (redirect "/register")
           (assoc-in [:flash :form_errors] (utils/get-errors user))))))
 
