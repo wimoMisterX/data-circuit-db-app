@@ -73,7 +73,7 @@
 
 (defn get-form-element [field value disabled]
   (if disabled
-    [:p {:class "form-control-static"} (if (empty? (str value)) "-" value)]
+    (text-field {:class "form-control" :disabled true} "" value)
     (get
       (reduce
         #(merge

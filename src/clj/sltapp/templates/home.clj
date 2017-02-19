@@ -78,7 +78,7 @@
                 :main_content [:div
                                [:div {:class "form-horizontal info-form"}
                                 (for [field (:info_fields params)]
-                                 (form-group (utils/db-field-to-verbose-name field) [:p {:class "form-control-static"} (get (:values params) (keyword field))] nil))]
+                                 (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control" :disabled true} "" (get (:values params) (keyword field))) nil))]
                                (for [form-type (seq (:form_to_fields params))]
                                 (let [title (name (first form-type)) fields (last form-type)]
                                  (form-to {:class "form-horizontal"} ["PUT" (str "/edit-circuit/" (-> params :values :id) "/" title)]
