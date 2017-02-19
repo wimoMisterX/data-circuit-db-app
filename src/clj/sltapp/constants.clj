@@ -1,5 +1,4 @@
-(ns sltapp.constants
- (:use [hiccup.form :only (drop-down text-field)]))
+(ns sltapp.constants)
 
 (def form_to_field_map {:new_circuit_connecting ["site_id"
                                                  "site_name"
@@ -38,13 +37,3 @@
                                          "new_device_connected_by"]
                        :disconnecting ["disconnected_date"
                                        "disconnected_by"]})
-
-(defn get-form-element [field value disabled]
-  (if disabled
-    [:p {:class "form-control-static"} (if (empty? (str value)) "-" value)]
-    (get
-      {:qos_profile (drop-down {:class "form-control" :disabled disabled} "qos_profile" ["Platinum T2" "Bronze" "Gold T1"] value)
-       :current_vpls_id (drop-down {:class "form-control" :disabled disabled} "current_vpls_id" ["28291" "45556" "52361"] value)
-       :status (drop-down {:class "form-control" :disabled disabled} "status" ["Live" "Commissioned" "Decomissioned"] value)}
-      (keyword field)
-      (text-field {:class "form-control" :disabled disabled} field value))))

@@ -90,3 +90,15 @@ where id = :id
 SELECT id
 FROM circuit
 WHERE state = :state AND id = :id
+
+-- :name insert-app-settings ! :! :n
+-- :doc creates a new user record
+INSERT INTO app_settings
+(timezone, datetime_format, form_dropdowns)
+VALUES (:timezone, :datetime_format, :form_dropdowns)
+
+-- :name get-app-settings :? :1
+-- :doc check if circuit in state
+SELECT *
+FROM app_settings
+WHERE id = 1

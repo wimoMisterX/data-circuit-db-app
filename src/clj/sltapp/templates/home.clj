@@ -1,11 +1,11 @@
 (ns sltapp.templates.home
  (:require [ring.util.anti-forgery :refer [anti-forgery-field]]
            [sltapp.templates.base :refer [base-app render-error render-alerts form-group]]
-           [sltapp.constants :refer [get-form-element]]
+           [clj-time.core :as t]
            [sltapp.utils :as utils])
  (:use [hiccup.page :only (html5 include-css include-js)]
        [hiccup.util :only (escape-html)]
-       [hiccup.form :only (text-field password-field submit-button form-to drop-down)]))
+       [hiccup.form :only (text-area text-field password-field submit-button form-to drop-down)]))
 
 (defn nav-pills [active pills]
   (map #(-> [:li {:class (if (= active (:value %)) "active")}
@@ -39,7 +39,8 @@
                                                       {:href "/connected-circuits" :value "Connected Circuits"}
                                                       {:href "/disconnected-circuits" :value "Disconnected Circuits"}
                                                       (if (:admin params) {:href "/register" :value "Register a User"})
-                                                      (if (:admin params) {:href "/manage-users" :value "Manage Users"})])]]
+                                                      (if (:admin params) {:href "/manage-users" :value "Manage Users"})
+                                                      (if (:admin params) {:href "/app-settings" :value "App Settings"})])]]
                   [:div {:class "col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"}
                    [:h1 {:class "page-header"} (:page_header params)]
                    (render-alerts (concat (:alerts params) (:flash_alerts params)))
@@ -64,7 +65,7 @@
                                (for [field (:fields params)]
                                 (form-group
                                   (utils/db-field-to-verbose-name field)
-                                  (get-form-element field "" false)
+                                  (utils/get-form-element field "" false)
                                   (get (:errors params) (keyword field))))
                                (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))})))
 
@@ -86,7 +87,7 @@
                                   (for [field fields]
                                    (form-group
                                      (utils/db-field-to-verbose-name field)
-                                     (get-form-element field (get (:values params) (keyword field)) (contains? (set (:disabled_fields params)) field))
+                                     (utils/get-form-element field (get (:values params) (keyword field)) (contains? (set (:disabled_fields params)) field))
                                      (get (:errors params) (keyword field))))
                                   (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))))]})))
 
@@ -120,3 +121,17 @@
                                   [:tr
                                    (for [header (:table_headers params)]
                                     [:td (get row (keyword header))])])]]]})))
+
+(defn app-settings [params]
+  (base-home (merge
+               params
+               {:title "App Settings"
+                :active_page "App Settings"
+                :page_header "App Settings"
+                :main_content (form-to {:class "form-horizontal"} ["PUT" "/update-app-settings"]
+                               (anti-forgery-field)
+                               (form-group "Timezone" (drop-down {:class "form-control"} "timezone" (t/available-ids) (-> params :values :timezone)) (-> params :errors :timezone))
+                               (form-group "Date Time Format" (text-field {:class "form-control"} "datetime_format" (-> params :values :datetime_format)) (-> params :errors :datetime_format))
+                               (form-group "Form Dropdowns" (text-area {:class "form-control"} "form_dropdowns" (-> params :values :form_dropdowns)) (-> params :errors :form_dropdowns))
+                               (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))})))
+

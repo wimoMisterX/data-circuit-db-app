@@ -5,6 +5,7 @@
             [ring.util.response :refer [redirect]]
             [sltapp.db.core :as db]
             [sltapp.validators :as validators]
+            [sltapp.utils :as utils]
             [sltapp.service.auth :as auth]
             [sltapp.templates.auth :as auth-templates]
             [buddy.hashers :as hashers]
@@ -50,17 +51,17 @@
 (defn change-password [request]
   (let [form (validators/validate-change-password-form (:params request))]
     (let [valid_form (and
-                       (validators/valid? form)
+                       (utils/valid? form)
                        (validators/validate-change-password (:params request) (:password (db/get-user {:cols ["password"] :id-field "id" :id-value (-> request :identity :id)}))))]
       (if valid_form (db/update-user {:id-field "id" :id-value (str (-> request :identity :id)) :col "password" :value (auth/encrypt-password (-> request :params :new_password))}))
       (render (auth-templates/profile (merge
                                         (base-context-authenticated-access request)
                                         {:alerts [{:class (if valid_form "success" "danger")  :message (if valid_form "Password updated successfully" "Invalid")}]
-                                         :errors (validators/get-errors form)}))))))
+                                         :errors (utils/get-errors form)}))))))
 
 (defn register-user [request]
   (let [user (validators/validate-user-register (:params request))]
-    (if (validators/valid? user)
+    (if (utils/valid? user)
       (let [user-fields (last user)]
         (let [email (:email user-fields)
               password (auth/generate-random-password 8)]
@@ -77,11 +78,11 @@
                                                       :email email
                                                       :password password})))))
       (-> (redirect "/register")
-          (assoc-in [:flash :form_errors] (validators/get-errors user))))))
+          (assoc-in [:flash :form_errors] (utils/get-errors user))))))
 
 (defn login-user [request next]
   (let [cleaned-user (validators/validate-user-login (:params request))]
-    (if (validators/valid? cleaned-user)
+    (if (utils/valid? cleaned-user)
       (let [user (db/get-user {:id-field "email" :id-value (:email (last cleaned-user)) :cols ["id" "email" "first_name" "last_name" "is_active" "password" "admin"]})
             password-match (hashers/check (:password (last cleaned-user)) (:password user))]
         (if (and user password-match  (:is_active user))
@@ -90,7 +91,7 @@
           (-> (redirect (str "/login?next=" next))
               (assoc-in [:flash :alerts] [{:class "danger" :message (if password-match "User has been deactivated" "Invalid email/password" )}]))))
       (-> (redirect (str "/login?next=" next))
-          (assoc-in [:flash :form_errors] (validators/get-errors cleaned-user))))))
+          (assoc-in [:flash :form_errors] (utils/get-errors cleaned-user))))))
 
 (defn logout [request]
   (-> (redirect "/login")

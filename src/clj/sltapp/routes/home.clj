@@ -48,7 +48,7 @@
 
 (defn add-circuit [request]
   (let [cleaned-circuit (validators/validate-new-circuit (:params request))]
-    (if (validators/valid? cleaned-circuit)
+    (if (utils/valid? cleaned-circuit)
       (let [circuit (last cleaned-circuit)]
         (db/insert-new-circuit (merge circuit {:commissioned_by_id (-> request :session :identity :id)
                                                :commissioned_date (c/to-sql-time (t/now))
@@ -56,7 +56,7 @@
         (-> (redirect "/new-circuit-connecting")
           (assoc-in [:flash :alerts] [{:class "success" :message "Circuit added successfully"}])))
       (-> (redirect "/new-circuit-connecting")
-          (assoc-in [:flash :form_errors] (validators/get-errors cleaned-circuit))))))
+          (assoc-in [:flash :form_errors] (utils/get-errors cleaned-circuit))))))
 
 (defn update-circuit [request id form]
   (let [return-fn (partial utils/validate-form-redirect (str "/edit-circuit/" id))]
@@ -95,6 +95,21 @@
       (-> (redirect (str "/edit-circuit/" id))
           (assoc-in [:flash :alerts] [{:class "danger" :message "Invalid circuit edit type"}])))))
 
+(defn app-settings-page [request]
+  (render (home-templates/app-settings (merge
+                                         (base-context-authenticated-access request)
+                                         {:values (utils/get-or-create-app-settings)
+                                          :errors (-> request :flash :form_errors)}))))
+
+(defn update-app-settings [request]
+  (utils/validate-form-redirect
+    "/app-settings"
+    #(validators/validate-app-settings (:params request))
+    #(db/clj-expr-generic-update {:id 1 :table "app_settings" :updates {:timezone (-> request :params :timezone)
+                                                                        :datetime_format (-> request :params :datetime_format)
+                                                                        :form_dropdowns (-> request :params :form_dropdowns)}})
+    {:class "success" :message "App settings updated successfully!"}))
+
 (defroutes home-routes
   (GET "/" [] home-page)
   (GET "/new-circuit-connecting" [] new-circuit-connecting-page)
@@ -102,4 +117,6 @@
   (GET "/edit-circuit/:id{[0-9]+}" [id :as r] (edit-circuit-page r id))
   (PUT "/edit-circuit/:id{[0-9]+}/:form{[a-z_]+}" [id form :as r] (update-circuit r id form))
   (GET "/connected-circuits" [] connected-circuits-page)
-  (GET "/disconnected-circuits" [] disconnected-circuits-page))
+  (GET "/app-settings" [] app-settings-page)
+  (GET "/disconnected-circuits" [] disconnected-circuits-page)
+  (PUT "/update-app-settings" [] update-app-settings))

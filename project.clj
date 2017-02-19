@@ -17,6 +17,7 @@
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.cli "0.3.5"]
                  [org.clojure/tools.logging "0.3.1"]
+                 [org.clojure/data.json "0.2.6"]
                  [org.webjars.bower/tether "1.4.0"]
                  [org.webjars/bootstrap "3.3.7"]
                  [org.webjars/font-awesome "4.7.0"]

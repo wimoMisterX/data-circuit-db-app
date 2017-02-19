@@ -1,7 +1,12 @@
 (ns sltapp.validators
  (:require [bouncer.core :as b]
+           [sltapp.utils :as utils]
+           [clojure.data.json :as json]
+           [clj-time.core :as t]
+           [clj-time.format :as f]
            [buddy.hashers :as hashers]
-           [bouncer.validators :as v]))
+           [bouncer.validators :as v])
+ (:use [bouncer.validators :only [defvalidator]]))
 
 (defn validate-user-login [user]
   (b/validate
@@ -16,12 +21,6 @@
     :last_name v/required
     :email [v/required v/email]
     :role v/required))
-
-(defn valid? [validated]
-  (= (get validated 0) nil))
-
-(defn get-errors [validated]
-  (-> validated last(get :bouncer.core/errors)))
 
 (defn validate-change-password-form [form]
   (b/validate
@@ -68,3 +67,10 @@
     circuit
     :disconnected_reason v/required
     :comments v/required))
+
+(defn validate-app-settings [app_settings]
+  (b/validate
+    app_settings
+    :timezone [v/required [#(contains? (t/available-ids) %) :message "Invalid Timezone"]]
+    :datetime_format [v/required [#(utils/exception-occured? (partial f/formatter-local %)) :message "%s must be a valid date time format"]]
+    :form_dropdowns [v/required [#(utils/exception-occured? (partial json/read-str % :key-fn keyword)) :message "%s must be valid JSON"]]))

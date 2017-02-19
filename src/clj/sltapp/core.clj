@@ -2,7 +2,8 @@
   (:require [sltapp.handler :as handler]
             [sltapp.service.auth :as auth]
             [sltapp.validators :as validators]
-            [sltapp.utils :refer [contains-many?]]
+            [sltapp.utils :as utils]
+            [sltapp.utils :refer [contains-many? get-or-create-app-settings]]
             [luminus.repl-server :as repl]
             [luminus.http-server :as http]
             [luminus-migrations.core :as migrations]
@@ -54,6 +55,7 @@
                         mount/start-with-args
                         :started)]
     (log/info component "started"))
+  (get-or-create-app-settings)
   (.addShutdownHook (Runtime/getRuntime) (Thread. stop-app)))
 
 (defn -main [& args]
@@ -68,7 +70,7 @@
       (let [parsed-args (-> args (parse-opts createadmin-cli-options))]
         (if (and
               (contains-many? (:options parsed-args) :first_name :last_name :email :password)
-              (validators/valid? (validators/validate-user-register (merge
+              (utils/valid? (validators/validate-user-register (merge
                                                                       (:options parsed-args)
                                                                       {:role "Admin"}))))
           (do

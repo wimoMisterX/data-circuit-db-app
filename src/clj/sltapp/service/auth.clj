@@ -43,6 +43,8 @@
              :handler authenticated-user}
             {:pattern #"^/manage-users$"
              :handler admin-access}
+            {:pattern #"^/app-settings$"
+             :handler admin-access}
             {:pattern #"^/reset-password/[0-9]+$"
              :handler admin-access}
             {:pattern #"^/modify-user/[0-9]+/[a-z_]+/[A-Za-z0-9]+$"
