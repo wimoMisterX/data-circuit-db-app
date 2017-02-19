@@ -26,13 +26,15 @@
   (render (home-templates/connected-circuits (merge
                                               (base-context-authenticated-access request)
                                               {:table_headers (distinct (apply concat (vals (dissoc form_to_field_map :disconnecting))))
-                                               :rows (map utils/format-values (search-circuits "connected" q))}))))
+                                               :rows (map utils/format-values (search-circuits "connected" q))
+                                               :search q}))))
 
 (defn disconnected-circuits-page [request q]
   (render (home-templates/disconnected-circuits (merge
                                                   (base-context-authenticated-access request)
                                                   {:table_headers (distinct (apply concat (vals form_to_field_map)))
-                                                   :rows (map utils/format-values (search-circuits "disconnected" q))}))))
+                                                   :rows (map utils/format-values (search-circuits "disconnected" q))
+                                                   :search q}))))
 
 (defn new-circuit-connecting-page [request]
   (render (home-templates/new-circuit-connecting (merge
