@@ -34,6 +34,9 @@
     (hashers/check (:current_password form) current_password)
     (= (:new_password form) (:confirm_new_password form))))
 
+(defn is-positive-number? [n]
+  (and (number? n) (> n 0)))
+
 (defn validate-new-circuit [circuit]
   (b/validate
     circuit
@@ -41,7 +44,7 @@
     :site_name v/required
     :slt_ip_circuit_no v/required
     :type v/required
-    :current_bandwidth_mpbs [v/number v/positive v/required]
+    :current_bandwidth_mpbs [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]
     :qos_profile v/required
     :current_vpls_id v/required
     :status v/required

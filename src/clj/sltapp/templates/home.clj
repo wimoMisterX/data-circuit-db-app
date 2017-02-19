@@ -98,7 +98,12 @@
                 :active_page "Connected Circuits"
                 :page_header "Connected Circuits"
                 :main_content [:div
-                               [:table {:class "table table-bordered table-condensed table-hover"}
+                               (form-to {:class "form-inline search-box"} ["GET" "/circuit-search/connected"]
+                                 (anti-forgery-field)
+                                 [:div {:class "input-group"}
+                                  (text-field {:class "form-control" :placeholder "Search"} "q" (:search params))
+                                  [:span {:class "input-group-btn"} (submit-button {:class "btn btn-primary"} "Search")]])
+                               [:table {:class "table table-bordered table-hover"}
                                 [:thead (for [header (:table_headers params)] [:th {:class "fit-column"} (utils/db-field-to-verbose-name header)])]
                                 [:tbody
                                  (for [row (:rows params)]
@@ -114,6 +119,11 @@
                 :active_page "Disconnected Circuits"
                 :page_header "Disconnected Circuits"
                 :main_content [:div
+                               (form-to {:class "form-inline search-box"} ["GET" "/circuit-search/disconnected"]
+                                 (anti-forgery-field)
+                                 [:div {:class "input-group"}
+                                  (text-field {:class "form-control" :placeholder "Search"} "q" (:search params))
+                                  [:span {:class "input-group-btn"} (submit-button {:class "btn btn-primary"} "Search")]])
                                [:table {:class "table table-bordered table-hover"}
                                 [:thead (for [header (:table_headers params)] [:th {:class "fit-column"} (utils/db-field-to-verbose-name header)])]
                                 [:tbody

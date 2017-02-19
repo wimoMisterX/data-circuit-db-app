@@ -83,3 +83,9 @@
         (seq (json/read-str (:form_dropdowns (get-or-create-app-settings)) :key-fn keyword)))
       (keyword field)
       (text-field {:class "form-control" :disabled disabled} field value))))
+
+(defn format-search [q]
+  (str "{" (string/join " " (for [x (string/split q #" ")] (str "\"" x "\""))) "}"))
+
+(defn valid-search? [q]
+  (exception-occured? #(json/read-str (format-search q) :key-fn keyword)))

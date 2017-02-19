@@ -65,3 +65,8 @@ body {
 .fit-column {
   white-space: nowrap;
 }
+
+.search-box {
+  float: right;
+  margin-bottom: 2.5rem;
+}

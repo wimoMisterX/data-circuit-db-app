@@ -8,6 +8,7 @@
             [sltapp.validators :as validators]
             [sltapp.utils :as utils]
             [sltapp.templates.home :as home-templates]
+            [clojure.data.json :as json]
             [clj-time.core :as t]
             [clj-time.local :as l]
             [clj-time.coerce :as c]
@@ -17,17 +18,21 @@
 (defn home-page [request]
   (render (home-templates/home (base-context-authenticated-access request))))
 
-(defn connected-circuits-page [request]
+(defn search-circuits [state q]
+  (db/search-circuits {:state state
+                       :where (json/read-str (if (utils/valid-search? q) (utils/format-search q) "{}") :key-fn keyword)}))
+
+(defn connected-circuits-page [request q]
   (render (home-templates/connected-circuits (merge
                                               (base-context-authenticated-access request)
                                               {:table_headers (distinct (apply concat (vals (dissoc form_to_field_map :disconnecting))))
-                                               :rows (map utils/format-values (db/get-connected-circuit-list))}))))
+                                               :rows (map utils/format-values (search-circuits "connected" q))}))))
 
-(defn disconnected-circuits-page [request]
+(defn disconnected-circuits-page [request q]
   (render (home-templates/disconnected-circuits (merge
                                                   (base-context-authenticated-access request)
                                                   {:table_headers (distinct (apply concat (vals form_to_field_map)))
-                                                   :rows (map utils/format-values (db/get-disconnected-circuit-list))}))))
+                                                   :rows (map utils/format-values (search-circuits "disconnected" q))}))))
 
 (defn new-circuit-connecting-page [request]
   (render (home-templates/new-circuit-connecting (merge
@@ -110,13 +115,17 @@
                                                                         :form_dropdowns (-> request :params :form_dropdowns)}})
     {:class "success" :message "App settings updated successfully!"}))
 
+(defn circuit-search [state q]
+  (redirect (str "/" state "-circuits?q=" q)))
+
 (defroutes home-routes
   (GET "/" [] home-page)
   (GET "/new-circuit-connecting" [] new-circuit-connecting-page)
   (POST "/new-circuit-connecting" [] add-circuit)
   (GET "/edit-circuit/:id{[0-9]+}" [id :as r] (edit-circuit-page r id))
   (PUT "/edit-circuit/:id{[0-9]+}/:form{[a-z_]+}" [id form :as r] (update-circuit r id form))
-  (GET "/connected-circuits" [] connected-circuits-page)
+  (GET "/connected-circuits" [q :as r] (connected-circuits-page r q))
   (GET "/app-settings" [] app-settings-page)
-  (GET "/disconnected-circuits" [] disconnected-circuits-page)
+  (GET "/disconnected-circuits" [q :as r] (disconnected-circuits-page r q))
+  (GET "/circuit-search/:state{(connected|disconnected)}" [state q] (circuit-search state q))
   (PUT "/update-app-settings" [] update-app-settings))
