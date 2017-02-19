@@ -59,12 +59,14 @@
 (defn add-circuit [request]
   (let [cleaned-circuit (validators/validate-new-circuit (:params request))]
     (if (utils/valid? cleaned-circuit)
-      (let [circuit (last cleaned-circuit)]
-        (db/insert-new-circuit (merge circuit {:commissioned_by_id (-> request :session :identity :id)
-                                               :commissioned_date (c/to-sql-time (t/now))
-                                               :state "connected"}))
+      (let [circuit (last cleaned-circuit)
+            unique (empty? (db/get-circuit-id-site-id circuit))]
+        (if unique
+          (db/insert-new-circuit (merge circuit {:commissioned_by_id (-> request :session :identity :id)
+                                                 :commissioned_date (c/to-sql-time (t/now))
+                                                 :state "connected"})))
         (-> (redirect "/new-circuit-connecting")
-          (assoc-in [:flash :alerts] [{:class "success" :message "Circuit added successfully"}])))
+          (assoc-in [:flash :alerts] [{:class (if unique "success" "danger") :message (if unique "Circuit added successfully" "Site Id already exists for the entered Slt Ip Circuit No")}])))
       (-> (redirect "/new-circuit-connecting")
           (assoc-in [:flash :form_errors] (utils/get-errors cleaned-circuit))))))
 

@@ -37,6 +37,12 @@ LEFT JOIN users AS u4 ON circuit.new_device_connected_by_id = u4.id
 LEFT JOIN users AS u5 ON circuit.disconnected_by_id = u5.id
 WHERE circuit.id = :id
 
+-- :name get-circuit-id-site-id  :? :1
+-- :doc creates a new circuit
+SELECT *
+FROM circuit
+WHERE site_id = :site_id AND slt_ip_circuit_no = :slt_ip_circuit_no
+
 -- :name insert-new-circuit ! :! :n
 -- :doc creates a new circuit
 INSERT INTO circuit
