@@ -21,6 +21,7 @@
                                         "vpls_changed_reason"]
                         :device_changing ["new_device_connected_date"
                                           "new_device_connected_by"
+                                          "status"
                                           "new_device_connected_reason"]
                         :disconnecting ["disconnected_date"
                                         "disconnected_by"

@@ -53,17 +53,20 @@
 (defn validate-bw-changing [circuit]
   (b/validate
     circuit
-    :bandwidth_change_reason v/required))
+    :bandwidth_change_reason v/required
+    :current_bandwidth_mpbs v/required))
 
 (defn validate-vpls-changing [circuit]
   (b/validate
     circuit
-    :vpls_changed_reason v/required))
+    :vpls_changed_reason v/required
+    :current_vpls_id v/required))
 
 (defn validate-device-changing [circuit]
   (b/validate
     circuit
-    :new_device_connected_reason v/required))
+    :new_device_connected_reason v/required
+    :status v/required))
 
 (defn validate-disconnecting [circuit]
   (b/validate
