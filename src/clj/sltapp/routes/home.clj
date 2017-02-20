@@ -90,7 +90,7 @@
       (= form "device_changing") (return-fn
                                    #(validators/validate-device-changing (:params request))
                                    #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:new_device_connected_reason (-> request :params :new_device_connected_reason)
-                                                                                                   :status (-> request :params :status)
+                                                                                                   :connected_device (-> request :params :connected_device)
                                                                                                    :new_device_connected_date (c/to-sql-time (t/now))
                                                                                                    :new_device_connected_by_id (-> request :session :identity :id)}})
                                    {:class "success" :message "Device Changing details saved!"})

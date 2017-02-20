@@ -8,6 +8,7 @@ CREATE TABLE circuit(
     qos_profile VARCHAR(30),
     current_vpls_id VARCHAR(30),
     status VARCHAR(30),
+    connected_device VARCHAR(30),
     commissioned_date TIMESTAMP,
     commissioned_by_id NUMERIC references users(id),
     commissioned_under_project VARCHAR(30),

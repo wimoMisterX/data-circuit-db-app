@@ -47,6 +47,7 @@
     :current_bandwidth_mpbs [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]
     :qos_profile v/required
     :current_vpls_id v/required
+    :connected_device v/required
     :status v/required
     :commissioned_under_project v/string))
 
@@ -66,7 +67,7 @@
   (b/validate
     circuit
     :new_device_connected_reason v/required
-    :status v/required))
+    :connected_device v/required))
 
 (defn validate-disconnecting [circuit]
   (b/validate

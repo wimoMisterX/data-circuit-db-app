@@ -7,6 +7,7 @@
                                                  "current_bandwidth_mpbs"
                                                  "qos_profile"
                                                  "current_vpls_id"
+                                                 "connected_device"
                                                  "status"
                                                  "commissioned_date"
                                                  "commissioned_by"
@@ -21,7 +22,7 @@
                                         "vpls_changed_reason"]
                         :device_changing ["new_device_connected_date"
                                           "new_device_connected_by"
-                                          "status"
+                                          "connected_device"
                                           "new_device_connected_reason"]
                         :disconnecting ["disconnected_date"
                                         "disconnected_by"
