@@ -75,7 +75,7 @@
               params
               {:title "Manage Users"
               :active_page "Manage Users"
-              :page_header "Manager Users"
+              :page_header "Manage Users"
               :main_content [:div
                              [:table {:class "table"}
                               [:thead
