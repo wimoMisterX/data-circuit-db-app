@@ -79,7 +79,7 @@
       (= form "bw_changing") (return-fn
                                #(validators/validate-bw-changing (:params request))
                                #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:bandwidth_change_reason (-> request :params :bandwidth_change_reason)
-                                                                                               :current_bandwidth_mpbs (-> request :params :current_bandwidth_mpbs)
+                                                                                               :current_bandwidth (-> request :params :current_bandwidth)
                                                                                                :bandwidth_change_date (c/to-timestamp (t/now))
                                                                                                :bandwidth_update_by_id (-> request :session :identity :id)}})
                                {:class "success" :message "Bw Changing details saved!"})

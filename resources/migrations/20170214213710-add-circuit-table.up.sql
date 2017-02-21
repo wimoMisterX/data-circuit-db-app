@@ -4,7 +4,7 @@ CREATE TABLE circuit(
     site_name VARCHAR(30),
     slt_ip_circuit_no VARCHAR(30) NOT NULL,
     type VARCHAR(30),
-    current_bandwidth_mpbs NUMERIC,
+    current_bandwidth NUMERIC,
     qos_profile VARCHAR(30),
     current_vpls_id VARCHAR(30),
     status VARCHAR(30),

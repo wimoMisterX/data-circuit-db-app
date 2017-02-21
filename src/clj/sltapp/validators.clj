@@ -44,7 +44,7 @@
     :site_name v/required
     :slt_ip_circuit_no v/required
     :type v/required
-    :current_bandwidth_mpbs [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]
+    :current_bandwidth [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]
     :qos_profile v/required
     :current_vpls_id v/required
     :connected_device v/required
@@ -55,7 +55,7 @@
   (b/validate
     circuit
     :bandwidth_change_reason v/required
-    :current_bandwidth_mpbs v/required))
+    :current_bandwidth [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]))
 
 (defn validate-vpls-changing [circuit]
   (b/validate
@@ -72,8 +72,7 @@
 (defn validate-disconnecting [circuit]
   (b/validate
     circuit
-    :disconnected_reason v/required
-    :comments v/required))
+    :disconnected_reason v/required))
 
 (defn validate-app-settings [app_settings]
   (b/validate

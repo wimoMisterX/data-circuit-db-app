@@ -4,7 +4,7 @@
                                                  "site_name"
                                                  "slt_ip_circuit_no"
                                                  "type"
-                                                 "current_bandwidth_mpbs"
+                                                 "current_bandwidth"
                                                  "qos_profile"
                                                  "current_vpls_id"
                                                  "connected_device"
@@ -14,7 +14,7 @@
                                                  "commissioned_under_project"]
                         :bw_changing ["bandwidth_change_date"
                                       "bandwidth_update_by"
-                                      "current_bandwidth_mpbs"
+                                      "current_bandwidth"
                                       "bandwidth_change_reason"]
                         :vpls_changing ["vpls_changed_date"
                                         "vpls_changed_by"
