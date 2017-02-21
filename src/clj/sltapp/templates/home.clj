@@ -11,6 +11,9 @@
   (map #(-> [:li {:class (if (= active (:value %)) "active")}
              [:a {:href (:href %)} (:value %)]]) (filter #(not (empty? %)) pills)))
 
+(defn has-permission [is_admin required_perms user_perms]
+  (or is_admin (some required_perms user_perms)))
+
 (defn base-home [params]
   (base-app
     (:title params)
@@ -35,7 +38,7 @@
                   [:div {:class "col-sm-3 col-md-2 sidebar"}
                    [:ul {:class "nav nav-sidebar"}
                     (nav-pills (:active_page params) [{:href "/" :value "Home"}
-                                                      {:href "/new-circuit-connecting" :value "New Circuit Connecting"}
+                                                      (if (has-permission (:admin params) #{"New Circuit Connecting"} (:permissions params)) {:href "/new-circuit-connecting" :value "New Circuit Connecting"})
                                                       {:href "/connected-circuits" :value "Connected Circuits"}
                                                       {:href "/disconnected-circuits" :value "Disconnected Circuits"}
                                                       (if (:admin params) {:href "/register" :value "Register a User"})

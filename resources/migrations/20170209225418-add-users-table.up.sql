@@ -8,3 +8,8 @@ CREATE TABLE users
  is_active BOOLEAN,
  registered_on TIMESTAMP,
  password VARCHAR(300));
+
+CREATE TABLE permissions
+(id SERIAL PRIMARY KEY,
+ user_id NUMERIC references users(id),
+ codename VARCHAR(30));

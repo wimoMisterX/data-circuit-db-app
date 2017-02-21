@@ -75,10 +75,10 @@
                                                                       {:role "Admin"}))))
           (do
             (mount/start #'sltapp.config/env #'sltapp.db.core/*db*)
-            (db/create-user! (merge
-                               (assoc-in (:options parsed-args) [:password] (auth/encrypt-password (-> parsed-args :options :password)))
-                               {:admin true
-                                :is_active true}))
+            (db/create-user (merge
+                              (assoc-in (:options parsed-args) [:password] (auth/encrypt-password (-> parsed-args :options :password)))
+                              {:admin true
+                               :is_active true}))
             (mount/stop #'sltapp.db.core/*db*)
             (println "User created successfully"))
           (println (or (:errors parsed-args) (:summary parsed-args)))))

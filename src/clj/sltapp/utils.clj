@@ -7,6 +7,7 @@
             [clj-time.local :as l]
             [clj-time.coerce :as c]
             [clj-time.format :as f]
+            [sltapp.constants :refer [permissions]]
             [clojure.string :as string]))
 
 (defn valid? [validated]
@@ -89,3 +90,8 @@
 
 (defn valid-search? [q]
   (exception-occured? #(json/read-str (format-search q) :key-fn keyword)))
+
+(defn get-user-perms [identity]
+  (if (:admin identity)
+    permissions
+    (:permissions identity)))

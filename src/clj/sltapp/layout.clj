@@ -25,7 +25,8 @@
 (defn base-context-authenticated-access [request]
   {:admin (-> request :session :identity :admin)
    :full_name (str (-> request :session :identity :first_name) " " (-> request :session :identity :last_name))
-   :flash_alerts (-> request :flash :alerts)})
+   :flash_alerts (-> request :flash :alerts)
+   :user_permissions (-> request :identity :permissions)})
 
 (defn base-context-any-access [request]
   {:flash_alerts (-> request :flash :alerts)})

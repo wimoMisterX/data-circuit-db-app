@@ -39,3 +39,9 @@
                                          "new_device_connected_by"]
                        :disconnecting ["disconnected_date"
                                        "disconnected_by"]})
+
+(def permissions ["new_circuit_connecting"
+                  "bw_changing"
+                  "vpls_changing"
+                  "device_changing"
+                  "disconnecting"])

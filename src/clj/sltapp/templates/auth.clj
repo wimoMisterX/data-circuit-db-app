@@ -32,13 +32,16 @@
               {:title "Register"
               :active_page "Register a User"
               :page_header "Register a User"
-              :main_content (form-to {:class "form-horizontal"} [:post ""]
-                             (anti-forgery-field)
-                             (form-group "First Name" (text-field {:class "form-control"} "first_name") (-> params :errors :first_name))
-                             (form-group "Last Name" (text-field {:class "form-control"} "last_name") (-> params :errors :last_name))
-                             (form-group "Email" (text-field {:class "form-control"} "email") (-> params :errors :email))
-                             (form-group "Role" (drop-down {:class "form-control"} "role" ["Admin" "User"]) (-> params :errors :role))
-                             (form-group "" (submit-button {:class "btn btn-primary"} "Register") nil))})))
+              :main_content [:div
+                             [:div {:class "alert alert-info" :role "alert"} "Permissions only apply if the user is a standard user. Admins have full access rights."]
+                             (form-to {:class "form-horizontal"} [:post ""]
+                               (anti-forgery-field)
+                               (form-group "First Name" (text-field {:class "form-control"} "first_name") (-> params :errors :first_name))
+                               (form-group "Last Name" (text-field {:class "form-control"} "last_name") (-> params :errors :last_name))
+                               (form-group "Email" (text-field {:class "form-control"} "email") (-> params :errors :email))
+                               (form-group "Role" (drop-down {:class "form-control"} "role" ["Admin" "User"]) (-> params :errors :role))
+                               (form-group "Permissions" (drop-down {:class "form-control" :multiple true} "permissions" (:permissions params)) (-> params :errors :permissions))
+                               (form-group "" (submit-button {:class "btn btn-primary"} "Register") nil))]})))
 
 (defn register-success [params]
   (base-home (merge

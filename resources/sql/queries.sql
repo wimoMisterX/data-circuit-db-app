@@ -1,4 +1,4 @@
--- :name create-user! :! :n
+-- :name create-user :i!
 -- :doc creates a new user record
 INSERT INTO users
 (first_name, last_name, email, password, admin, is_active)
@@ -9,6 +9,11 @@ VALUES (:first_name, :last_name, :email, :password, :admin, :is_active)
 SELECT :i*:cols
 FROM users
 WHERE :i:id-field = :id-value
+
+-- :name get-user-permissions :? :*
+-- :doc get all non admins
+SELECT codename FROM permissions
+WHERE user_id = :user_id
 
 -- :name get-user-list :? :*
 -- :doc get all non admins
@@ -100,3 +105,13 @@ WHERE state = :state
   (if (string/blank? q) " AND 1=1" (str " AND " q)))
 ~*/
 ORDER BY slt_ip_circuit_no
+
+-- :name insert-user-perms ! :! :n
+-- :doc creates a new user record
+INSERT INTO permissions
+(user_id, codename)
+VALUES (:user_id, :codename)
+
+-- :name delete-user-perms :! :n
+DELETE FROM permissions
+WHERE user_id = :user_id AND codename = :codename

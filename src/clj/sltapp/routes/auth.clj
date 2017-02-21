@@ -4,6 +4,7 @@
             [sltapp.utils :refer [get-next-url perform-action-and-redirect]]
             [ring.util.response :refer [redirect]]
             [sltapp.db.core :as db]
+            [sltapp.constants :refer [permissions]]
             [sltapp.validators :as validators]
             [sltapp.utils :as utils]
             [sltapp.service.auth :as auth]
@@ -20,7 +21,8 @@
 (defn register-page [request]
   (render (auth-templates/register (merge
                                      (base-context-authenticated-access request)
-                                     {:errors (-> request :flash :form_errors)}))))
+                                     {:errors (-> request :flash :form_errors)
+                                      :permissions (map #(-> [(utils/db-field-to-verbose-name %) %]) permissions)}))))
 
 (defn profile-page [request]
   (render (auth-templates/profile (base-context-authenticated-access request))))
@@ -59,28 +61,42 @@
                                         {:alerts [{:class (if valid_form "success" "danger")  :message (if valid_form "Password updated successfully" "Invalid")}]
                                          :errors (utils/get-errors form)}))))))
 
+(defn add-permissions-to-user [user_id perms]
+  (doall (for [perm (if (= java.lang.String (type perms)) [perms]  perms)]
+    (db/insert-user-perms {:user_id user_id
+                           :codename perm}))))
+
+(defn remove-permissions-from-user [user_id perms]
+  (doall (for [perm (if (= java.lang.String (type perms)) [perms]  perms)]
+    (db/delete-user-perms {:user_id user_id
+                           :codename perm}))))
+
+(defn create-user [details perms]
+  (db/create-user details)
+  (if-not (:admin details)
+    (add-permissions-to-user (:id (db/get-user {:id-field "email" :id-value (:email details) :cols ["id"]})) perms)))
+
 (defn register-user [request]
-  (let [user (validators/validate-user-register (:params request))]
-    (if (utils/valid? user)
+  (let [user (validators/validate-user-register (:params request))
+        valid_user_perms (validators/valid-user-perms? (:params request))]
+    (if (and (utils/valid? user) valid_user_perms)
       (let [user-fields (last user)]
-        (let [email (:email user-fields)
-              password (auth/generate-random-password 8)
+        (let [password (auth/generate-random-password 8)
               unique (empty? (db/get-user {:id-field "email" :id-value (:email user-fields) :cols ["id"]}))]
           (if unique
-            (db/create-user!
-              {:first_name (:first_name user-fields)
-               :last_name (:last_name user-fields)
-               :email email
-               :password (auth/encrypt-password password)
-               :admin (= "Admin" (:role user-fields))
-               :is_active true}))
+            (create-user (merge user-fields {:password (auth/encrypt-password password)
+                                             :admin (= "Admin" (:role user-fields))
+                                             :is_active true})
+                         (:permissions user-fields)))
           (render ((if unique auth-templates/register-success auth-templates/register)
                      (merge (base-context-authenticated-access request)
                             {:alerts [{:class (if unique "success" "danger") :message (if unique "User registerd successfully" "A user with this email already exists")}]
-                             :email email
+                             :email (:email user-fields)
                              :password password})))))
       (-> (redirect "/register")
-          (assoc-in [:flash :form_errors] (utils/get-errors user))))))
+          (assoc-in [:flash :form_errors] (merge
+                                            {:permissions (if-not valid_user_perms ["Please select alteast one permission"] [])}
+                                            (utils/get-errors user)))))))
 
 (defn login-user [request next]
   (let [cleaned-user (validators/validate-user-login (:params request))]
@@ -89,7 +105,8 @@
             password-match (hashers/check (:password (last cleaned-user)) (:password user))]
         (if (and user password-match  (:is_active user))
           (-> (redirect (if (clojure.string/blank? next) "/" next))
-              (assoc-in [:session :identity] (select-keys user [:id :email :admin :first_name :last_name])))
+              (assoc-in [:session :identity] (merge (select-keys user [:id :email :admin :first_name :last_name])
+                                                    {:permissions (for [perm (db/get-user-permissions {:user_id (:id user)})] (:codename perm))})))
           (-> (redirect (str "/login?next=" next))
               (assoc-in [:flash :alerts] [{:class "danger" :message (if password-match "User has been deactivated" "Invalid email/password" )}]))))
       (-> (redirect (str "/login?next=" next))

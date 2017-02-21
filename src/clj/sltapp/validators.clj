@@ -81,3 +81,9 @@
     :timezone [v/required [#(contains? (t/available-ids) %) :message "Invalid Timezone"]]
     :datetime_format [v/required [#(utils/exception-occured? (partial f/formatter-local %)) :message "%s must be a valid date time format"]]
     :form_dropdowns [v/required [#(utils/exception-occured? (partial json/read-str % :key-fn keyword)) :message "%s must be valid JSON"]]))
+
+(defn valid-user-perms? [user]
+  (if (= (:role user) "User")
+    (not (empty? (:permissions user)))
+    true))
+

@@ -8,6 +8,7 @@
             [sltapp.validators :as validators]
             [sltapp.utils :as utils]
             [sltapp.templates.home :as home-templates]
+            [sltapp.service.auth :refer [unauthorized-handler]]
             [clojure.data.json :as json]
             [clojure-csv.core :as csv]
             [clj-time.core :as t]
@@ -40,10 +41,12 @@
                                                    :search q}))))
 
 (defn new-circuit-connecting-page [request]
-  (render (home-templates/new-circuit-connecting (merge
-                                                  (base-context-authenticated-access request)
-                                                  {:fields (remove (set (:new_circuit_connecting auto_fill_fields)) (:new_circuit_connecting form_to_field_map))
-                                                   :errors (-> request :flash :form_errors)}))))
+  (if (some #{"new_circuit_connecting"} (utils/get-user-perms (:identity request)))
+    (render (home-templates/new-circuit-connecting (merge
+                                                    (base-context-authenticated-access request)
+                                                    {:fields (remove (set (:new_circuit_connecting auto_fill_fields)) (:new_circuit_connecting form_to_field_map))
+                                                     :errors (-> request :flash :form_errors)})))
+    (unauthorized-handler request "Only authenticated users allowed")))
 
 (defn edit-circuit-page [request id]
   (if (nil? (db/circuit-in-state {:id id :state "connected"}))
@@ -54,7 +57,7 @@
                                            :errors (-> request :flash :form_errors)
                                            :info_fields (:new_circuit_connecting form_to_field_map)
                                            :disabled_fields (apply concat (vals auto_fill_fields))
-                                           :form_to_fields (dissoc form_to_field_map :new_circuit_connecting)})))))
+                                           :form_to_fields (select-keys (dissoc form_to_field_map :new_circuit_connecting) (map keyword (utils/get-user-perms (:identity request))))})))))
 
 (defn add-circuit [request]
   (let [cleaned-circuit (validators/validate-new-circuit (:params request))]
