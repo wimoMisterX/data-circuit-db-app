@@ -51,8 +51,8 @@ WHERE site_id = :site_id AND slt_ip_circuit_no = :slt_ip_circuit_no
 -- :name insert-new-circuit ! :! :n
 -- :doc creates a new circuit
 INSERT INTO circuit
-(site_id, site_name, slt_ip_circuit_no, type, current_bandwidth_mpbs, qos_profile, current_vpls_id, status, commissioned_date, commissioned_by_id, commissioned_under_project, connected_device, state)
-VALUES (:site_id, :site_name, :slt_ip_circuit_no, :type, :current_bandwidth_mpbs, :qos_profile, :current_vpls_id, :status, :commissioned_date, :commissioned_by_id, :commissioned_under_project, :connected_device, :state)
+(site_id, site_name, slt_ip_circuit_no, type, current_bandwidth, qos_profile, current_vpls_id, status, commissioned_date, commissioned_by_id, commissioned_under_project, connected_device, state)
+VALUES (:site_id, :site_name, :slt_ip_circuit_no, :type, :current_bandwidth, :qos_profile, :current_vpls_id, :status, :commissioned_date, :commissioned_by_id, :commissioned_under_project, :connected_device, :state)
 
 -- :name clj-expr-generic-update :! :n
 /* :require [clojure.string :as string]
