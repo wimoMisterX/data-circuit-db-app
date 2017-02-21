@@ -13,10 +13,12 @@
             [clojure.java.io :as io]))
 
 (defn login-page [request next]
-  (render (auth-templates/login (merge
-                                  (base-context-any-access request)
-                                  {:next next
-                                   :errors (-> request :flash :form_errors)}))))
+  (if (-> request :identity :id)
+    (redirect "/")
+    (render (auth-templates/login (merge
+                                    (base-context-any-access request)
+                                    {:next next
+                                     :errors (-> request :flash :form_errors)})))))
 
 (defn register-page [request]
   (render (auth-templates/register (merge
