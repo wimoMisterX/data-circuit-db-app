@@ -38,7 +38,7 @@
                   [:div {:class "col-sm-3 col-md-2 sidebar"}
                    [:ul {:class "nav nav-sidebar"}
                     (nav-pills (:active_page params) [{:href "/" :value "Home"}
-                                                      (if (has-permission (:admin params) #{"New Circuit Connecting"} (:permissions params)) {:href "/new-circuit-connecting" :value "New Circuit Connecting"})
+                                                      (if (has-permission (:admin params) #{"new_circuit_connecting"} (:user_permissions params)) {:href "/new-circuit-connecting" :value "New Circuit Connecting"})
                                                       {:href "/connected-circuits" :value "Connected Circuits"}
                                                       {:href "/disconnected-circuits" :value "Disconnected Circuits"}
                                                       (if (:admin params) {:href "/register" :value "Register a User"})

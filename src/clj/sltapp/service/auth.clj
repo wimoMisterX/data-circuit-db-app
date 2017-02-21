@@ -49,6 +49,8 @@
              :handler admin-access}
             {:pattern #"^/modify-user/[0-9]+/[a-z_]+/[A-Za-z0-9]+$"
              :handler admin-access}
+            {:pattern #"^/change-permissions/[0-9]+"
+             :handler admin-access}
             {:pattern #"^/register$"
              :handler admin-access}])
 

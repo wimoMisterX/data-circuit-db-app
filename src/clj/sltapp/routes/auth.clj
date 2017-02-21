@@ -1,5 +1,5 @@
 (ns sltapp.routes.auth
-  (:require [sltapp.layout :refer [render base-context-authenticated-access base-context-any-access]]
+  (:require [sltapp.layout :refer [render base-context-authenticated-access base-context-any-access error-page]]
             [compojure.core :refer [defroutes GET POST]]
             [sltapp.utils :refer [get-next-url perform-action-and-redirect]]
             [ring.util.response :refer [redirect]]
@@ -40,17 +40,30 @@
       (= field "role") (return-fn #(db/update-user {:id-field "id" :id-value id :col "admin" :value (= value "admin")}) {:class "success" :message "User role changed succesfully!"})
       (= field "is_active") (return-fn #(db/update-user {:id-field "id" :id-value id :col "is_active" :value value}) {:class "success" :message "User status changed successfully!"})
     :else
-      (return-fn nil {:class "danger" :message "This is a flash message"}))))
+      (return-fn nil {:class "danger" :message "Invalid action"}))))
+
+(defn change-permissions-page [request id]
+  (let [is_admin (:admin (db/get-user {:id-field "id" :id-value id :cols ["admin"]}))
+        user_perms (for [perm (db/get-user-permissions {:user_id id})] (:codename perm))]
+    (if (or is_admin (nil? is_admin))
+      (error-page {:status 404 :title "Not found"})
+      (render (auth-templates/change-permissions (merge
+                                                   (base-context-authenticated-access request)
+                                                   {:user_id id
+                                                    :current_perms (map #(-> [(utils/db-field-to-verbose-name %) %]) user_perms)
+                                                    :new_perms (map #(-> [(utils/db-field-to-verbose-name %) %]) (filter #(empty? (some #{%} user_perms)) permissions))}))))))
 
 (defn reset-password [request id]
-  (let [password (auth/generate-random-password 8)
-        user (db/get-user {:cols ["email"] :id-field "id" :id-value id})]
-    (db/update-user {:id-field "id" :id-value id :col "password" :value (auth/encrypt-password password)})
-    (render (auth-templates/reset-password (merge
-                                             (base-context-authenticated-access request)
-                                             {:alerts [{:class "success" :message "Password reset successfully"}]
-                                              :email (:email user)
-                                              :password password})))))
+  (let [user (db/get-user {:cols ["email" "admin"] :id-field "id" :id-value id})]
+    (if (or (:admin user) (nil? user))
+      (error-page {:status 404 :title "Not found"})
+      (let [password (auth/generate-random-password 8)]
+        (db/update-user {:id-field "id" :id-value id :col "password" :value (auth/encrypt-password password)})
+        (render (auth-templates/reset-password (merge
+                                                 (base-context-authenticated-access request)
+                                                 {:alerts [{:class "success" :message "Password reset successfully"}]
+                                                  :email (:email user)
+                                                  :password password})))))))
 
 (defn change-password [request]
   (let [form (validators/validate-change-password-form (:params request))]
@@ -72,6 +85,14 @@
   (doall (for [perm (if (= java.lang.String (type perms)) [perms]  perms)]
     (db/delete-user-perms {:user_id user_id
                            :codename perm}))))
+
+(defn change-permissions [request id action]
+  (cond
+    (= action "add") (perform-action-and-redirect (str "/change-permissions/" id) #(add-permissions-to-user id (-> request :params :perms)) {:class "success" :message "Permissions added successfully!"})
+    (= action "remove") (perform-action-and-redirect (str "/change-permissions/" id) #(remove-permissions-from-user id (-> request :params :perms)) {:class "success" :message "Permissions removed successfully!"})
+    :else
+      (error-page {:status 404 :title "Not found"})))
+
 
 (defn create-user [details perms]
   (db/create-user details)
@@ -129,5 +150,7 @@
   (GET "/reset-password/:id{[0-9]+}" [id :as r] (reset-password r id))
   (GET "/modify-user/:id{[0-9]+}/:field{[a-z_]+}/:value{[0-9a-zA-Z]+}" [id field value :as r] (modify-user r id field value))
   (POST "/change-password" [] change-password)
+  (GET "/change-permissions/:id{[0-9]+}" [id :as r] (change-permissions-page r id))
+  (POST "/change-permissions/:id{[0-9]+}/:action{(add|remove)}" [id action :as r] (change-permissions r id action))
   (GET "/login" [next :as r] (login-page r next)))
 

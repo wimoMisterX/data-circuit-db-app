@@ -70,3 +70,7 @@ body {
   float: right;
   margin-bottom: 2.5rem;
 }
+
+.checkbox-set {
+  margin-left: 2rem;
+}

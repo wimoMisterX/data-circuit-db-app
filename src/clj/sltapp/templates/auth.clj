@@ -94,6 +94,7 @@
                                                                 [:td (:email user)]
                                                                 [:td {:class "action-spacing"}
                                                                  [:a {:href (str "/reset-password/" (:id user))} "Reset Password"]
+                                                                 [:a {:href (str "/change-permissions/" (:id user))} "Change Permissions"]
                                                                  [:a {:href (str "/modify-user/" (:id user) "/role/admin")} "Make admin"]
                                                                  [:a {:href (str "/modify-user/" (:id user) "/is_active/" (not (:is_active user)))} (if (:is_active user) "Deactivate user" "Activate user")]]])]]]})))
 
@@ -113,3 +114,28 @@
                                 [:td "Password"]
                                 [:td (:password params)]]]]]})))
 
+(defn change-permissions [params]
+  (base-home (merge
+              params
+              {:title "Change Permissions"
+              :active_page "Change Permissions"
+              :page_header "Change Permissions"
+              :main_content [:div
+                              [:h2 "Remove Permissions"]
+                              (form-to {:class "form-horizontal checkbox-set"} [:post (str "/change-permissions/" (:user_id params) "/remove")]
+                                (anti-forgery-field)
+                                (for [perm (:current_perms params)]
+                                  [:label {:class "checkbox"}
+                                    [:input {:type "checkbox" :name "perms" :value (last perm)}]
+                                    (first perm)])
+                                (form-group "" (submit-button {:class "btn btn-primary"} "Remove Permissions") nil))
+                              (if (not-empty (:new_perms params))
+                                [:div
+                                  [:h2 "Add Permissions"]
+                                  (form-to {:class "form-horizontal checkbox-set"} [:post (str "/change-permissions/" (:user_id params) "/add")]
+                                    (anti-forgery-field)
+                                    (for [perm (:new_perms params)]
+                                      [:label {:class "checkbox"}
+                                        [:input {:type "checkbox" :name "perms" :value (last perm)}]
+                                        (first perm)])
+                                    (form-group "" (submit-button {:class "btn btn-primary"} "Add Permissions") nil))])]})))
