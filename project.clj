@@ -1,7 +1,7 @@
-(defproject sltapp "0.1.0-SNAPSHOT"
+(defproject sltapp (get (System/getenv) "PROJECT_VERSION")
 
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Data Circuit Database Application"
+  :url "https://github.com/wimoMisterX/data-circuit-db-app"
 
   :dependencies [[bouncer "1.0.0"]
                  [com.h2database/h2 "1.4.193"]

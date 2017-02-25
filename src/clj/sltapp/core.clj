@@ -7,7 +7,7 @@
             [luminus.repl-server :as repl]
             [luminus.http-server :as http]
             [luminus-migrations.core :as migrations]
-            [sltapp.config :refer [env]]
+            [sltapp.config :refer [env dbserver]]
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.tools.logging :as log]
             [sltapp.db.core :as db]
