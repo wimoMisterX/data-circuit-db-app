@@ -3,7 +3,7 @@
             [compojure.core :refer [defroutes GET POST PUT]]
             [ring.util.http-response :as response]
             [ring.util.response :refer [redirect]]
-            [sltapp.constants :refer [form_to_field_map auto_fill_fields]]
+            [sltapp.constants :refer [form_to_field_map auto_fill_fields editable_new_circuit_fields_admin editable_new_circuit_fields_user]]
             [sltapp.db.core :as db]
             [sltapp.validators :as validators]
             [sltapp.utils :as utils]
@@ -56,6 +56,7 @@
                                           {:values (utils/format-values (db/get-circuit-info {:id id}))
                                            :errors (-> request :flash :form_errors)
                                            :info_fields (:new_circuit form_to_field_map)
+                                           :editable_info_fields (if (-> request :identity :admin) editable_new_circuit_fields_admin editable_new_circuit_fields_user)
                                            :disabled_fields (apply concat (vals auto_fill_fields))
                                            :form_to_fields (select-keys (dissoc form_to_field_map :new_circuit) (map keyword (utils/get-user-perms (:identity request))))})))))
 
@@ -76,6 +77,13 @@
 (defn update-circuit [request id form]
   (let [return-fn (partial utils/validate-form-redirect (str "/edit-circuit/" id))]
     (cond
+      (= form "info_fields") (return-fn
+                               #((if (-> request :identity :admin) validators/validate-circuit-admin-edit validators/validate-circuit-user-edit) (:params request))
+                               #(db/clj-expr-generic-update {:id id :table "circuit" :updates (-> (map (fn [ar] (list (keyword ar) (get (:params request) (keyword ar))))
+                                                                                                       (if (-> request :identity :admin) editable_new_circuit_fields_admin editable_new_circuit_fields_user))
+                                                                                                  ((partial apply concat))
+                                                                                                  ((partial apply array-map)))})
+                               {:class "success" :message "Bw Changing details saved!"})
       (= form "bw_changing") (return-fn
                                #(validators/validate-bw-changing (:params request))
                                #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:bandwidth_changed_reason (-> request :params :bandwidth_changed_reason)

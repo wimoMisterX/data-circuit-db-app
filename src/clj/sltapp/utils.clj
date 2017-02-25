@@ -80,7 +80,7 @@
       (reduce
         #(merge
           %1
-          {(first %2) (drop-down {:class "form-control" :disabled disabled} (name (first %2)) (last %2))})
+          {(first %2) (drop-down {:class "form-control" :disabled disabled} (name (first %2)) (last %2) value)})
         {}
         (seq (json/read-str (:form_dropdowns (get-or-create-app-settings)) :key-fn keyword)))
       (keyword field)

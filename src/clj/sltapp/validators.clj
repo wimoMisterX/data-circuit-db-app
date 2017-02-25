@@ -51,6 +51,25 @@
     :status v/required
     :commissioned_under_project v/string))
 
+(defn validate-circuit-admin-edit [circuit]
+  (b/validate
+    circuit
+    :site_id v/required
+    :site_name v/required
+    :circuit_no v/required
+    :type v/required
+    :bandwidth [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]
+    :qos_profile v/required
+    :vpls_id v/required
+    :connected_device v/required
+    :status v/required
+    :commissioned_under_project v/string))
+
+(defn validate-circuit-user-edit [circuit]
+  (b/validate
+    circuit
+    :status v/required))
+
 (defn validate-bw-changing [circuit]
   (b/validate
     circuit

@@ -45,3 +45,16 @@
                   "vpls_changing"
                   "device_changing"
                   "disconnecting"])
+
+(def editable_new_circuit_fields_user ["status"])
+
+(def editable_new_circuit_fields_admin ["circuit_no"
+                                        "site_id"
+                                        "site_name"
+                                        "type"
+                                        "bandwidth"
+                                        "qos_profile"
+                                        "vpls_id"
+                                        "connected_device"
+                                        "status"
+                                        "commissioned_under_project"])

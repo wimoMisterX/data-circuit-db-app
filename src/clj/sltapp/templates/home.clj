@@ -79,9 +79,14 @@
                 :active_page "Connected Circuits"
                 :page_header "Edit Circuit"
                 :main_content [:div
-                               [:div {:class "form-horizontal info-form"}
+                               (form-to {:class "form-horizontal info-form"} ["PUT" (str "/edit-circuit/" (-> params :values :id) "/info_fields")]
+                                (anti-forgery-field)
                                 (for [field (:info_fields params)]
-                                 (form-group (utils/db-field-to-verbose-name field) (text-field {:class "form-control" :disabled true} "" (get (:values params) (keyword field))) nil))]
+                                 (form-group
+                                   (utils/db-field-to-verbose-name field)
+                                   (utils/get-form-element field (get (:values params) (keyword field)) (not (contains? (set (:editable_info_fields params)) field)))
+                                   (get (:errors params) (keyword field))))
+                                  (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))
                                (for [form-type (seq (:form_to_fields params))]
                                 (let [title (name (first form-type)) fields (last form-type)]
                                  (form-to {:class "form-horizontal"} ["PUT" (str "/edit-circuit/" (-> params :values :id) "/" title)]
