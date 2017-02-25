@@ -40,12 +40,12 @@
                                                    :rows (map utils/format-values (search-circuits "disconnected" q))
                                                    :search q}))))
 
-(defn new-circuit-connecting-page [request]
-  (if (some #{"new_circuit_connecting"} (utils/get-user-perms (:identity request)))
-    (render (home-templates/new-circuit-connecting (merge
-                                                    (base-context-authenticated-access request)
-                                                    {:fields (remove (set (:new_circuit_connecting auto_fill_fields)) (:new_circuit_connecting form_to_field_map))
-                                                     :errors (-> request :flash :form_errors)})))
+(defn new-circuit-page [request]
+  (if (some #{"new_circuit"} (utils/get-user-perms (:identity request)))
+    (render (home-templates/new-circuit (merge
+                                          (base-context-authenticated-access request)
+                                          {:fields (remove (set (:new_circuit auto_fill_fields)) (:new_circuit form_to_field_map))
+                                           :errors (-> request :flash :form_errors)})))
     (unauthorized-handler request "Only authenticated users allowed")))
 
 (defn edit-circuit-page [request id]
@@ -55,9 +55,9 @@
                                           (base-context-authenticated-access request)
                                           {:values (utils/format-values (db/get-circuit-info {:id id}))
                                            :errors (-> request :flash :form_errors)
-                                           :info_fields (:new_circuit_connecting form_to_field_map)
+                                           :info_fields (:new_circuit form_to_field_map)
                                            :disabled_fields (apply concat (vals auto_fill_fields))
-                                           :form_to_fields (select-keys (dissoc form_to_field_map :new_circuit_connecting) (map keyword (utils/get-user-perms (:identity request))))})))))
+                                           :form_to_fields (select-keys (dissoc form_to_field_map :new_circuit) (map keyword (utils/get-user-perms (:identity request))))})))))
 
 (defn add-circuit [request]
   (let [cleaned-circuit (validators/validate-new-circuit (:params request))]
@@ -68,9 +68,9 @@
           (db/insert-new-circuit (merge circuit {:commissioned_by_id (-> request :session :identity :id)
                                                  :commissioned_date (c/to-sql-time (t/now))
                                                  :state "connected"})))
-        (-> (redirect "/new-circuit-connecting")
+        (-> (redirect "/new-circuit")
           (assoc-in [:flash :alerts] [{:class (if unique "success" "danger") :message (if unique "Circuit added successfully" "Site Id already exists for the entered Slt Ip Circuit No")}])))
-      (-> (redirect "/new-circuit-connecting")
+      (-> (redirect "/new-circuit")
           (assoc-in [:flash :form_errors] (utils/get-errors cleaned-circuit))))))
 
 (defn update-circuit [request id form]
@@ -78,15 +78,15 @@
     (cond
       (= form "bw_changing") (return-fn
                                #(validators/validate-bw-changing (:params request))
-                               #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:bandwidth_change_reason (-> request :params :bandwidth_change_reason)
-                                                                                               :current_bandwidth (-> request :params :current_bandwidth)
-                                                                                               :bandwidth_change_date (c/to-timestamp (t/now))
+                               #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:bandwidth_changed_reason (-> request :params :bandwidth_changed_reason)
+                                                                                               :bandwidth (-> request :params :bandwidth)
+                                                                                               :bandwidth_changed_date (c/to-timestamp (t/now))
                                                                                                :bandwidth_update_by_id (-> request :session :identity :id)}})
                                {:class "success" :message "Bw Changing details saved!"})
       (= form "vpls_changing") (return-fn
                                  #(validators/validate-vpls-changing (:params request))
                                  #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:vpls_changed_reason (-> request :params :vpls_changed_reason)
-                                                                                                 :current_vpls_id (-> request :params :current_vpls_id)
+                                                                                                 :vpls_id (-> request :params :vpls_id)
                                                                                                  :vpls_changed_date (c/to-sql-time (t/now))
                                                                                                  :vpls_changed_by_id (-> request :session :identity :id)}})
                                  {:class "success" :message "Vpls Changing details saved!"})
@@ -105,7 +105,7 @@
                                                                                                  :comments (-> request :params :comments)
                                                                                                  :disconnected_date (c/to-sql-time (t/now))
                                                                                                  :disconnected_by_id (-> request :session :identity :id)}})
-                                 {:class "success" :message "Circuit is disconneted!"}
+                                 {:class "success" :message "Circuit is disconnected!"}
                                  (str "/edit-circuit/" id))
     :else
       (-> (redirect (str "/edit-circuit/" id))
@@ -139,8 +139,8 @@
 
 (defroutes home-routes
   (GET "/" [] home-page)
-  (GET "/new-circuit-connecting" [] new-circuit-connecting-page)
-  (POST "/new-circuit-connecting" [] add-circuit)
+  (GET "/new-circuit" [] new-circuit-page)
+  (POST "/new-circuit" [] add-circuit)
   (GET "/edit-circuit/:id{[0-9]+}" [id :as r] (edit-circuit-page r id))
   (PUT "/edit-circuit/:id{[0-9]+}/:form{[a-z_]+}" [id form :as r] (update-circuit r id form))
   (GET "/connected-circuits" [q :as r] (connected-circuits-page r q))

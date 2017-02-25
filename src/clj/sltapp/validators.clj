@@ -42,11 +42,11 @@
     circuit
     :site_id v/required
     :site_name v/required
-    :slt_ip_circuit_no v/required
+    :circuit_no v/required
     :type v/required
-    :current_bandwidth [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]
+    :bandwidth [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]
     :qos_profile v/required
-    :current_vpls_id v/required
+    :vpls_id v/required
     :connected_device v/required
     :status v/required
     :commissioned_under_project v/string))
@@ -54,14 +54,14 @@
 (defn validate-bw-changing [circuit]
   (b/validate
     circuit
-    :bandwidth_change_reason v/required
-    :current_bandwidth [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]))
+    :bandwidth_changed_reason v/required
+    :bandwidth [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]))
 
 (defn validate-vpls-changing [circuit]
   (b/validate
     circuit
     :vpls_changed_reason v/required
-    :current_vpls_id v/required))
+    :vpls_id v/required))
 
 (defn validate-device-changing [circuit]
   (b/validate

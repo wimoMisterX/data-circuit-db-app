@@ -38,7 +38,7 @@
                   [:div {:class "col-sm-3 col-md-2 sidebar"}
                    [:ul {:class "nav nav-sidebar"}
                     (nav-pills (:active_page params) [{:href "/" :value "Home"}
-                                                      (if (has-permission (:admin params) #{"new_circuit_connecting"} (:user_permissions params)) {:href "/new-circuit-connecting" :value "New Circuit Connecting"})
+                                                      (if (has-permission (:admin params) #{"new_circuit"} (:user_permissions params)) {:href "/new-circuit" :value "New Circuit"})
                                                       {:href "/connected-circuits" :value "Connected Circuits"}
                                                       {:href "/disconnected-circuits" :value "Disconnected Circuits"}
                                                       (if (:admin params) {:href "/register" :value "Register a User"})
@@ -57,13 +57,13 @@
                 :page_header (str "Welcome " (first (clojure.string/split (:full_name params) #"\s")))
                 :main_content [:div {:class "row"}]})))
 
-(defn new-circuit-connecting [params]
+(defn new-circuit [params]
   (base-home (merge
                params
-               {:title "New Circuit Connecting"
-                :active_page "New Circuit Connecting"
-                :page_header "New Circuit Connecting"
-                :main_content (form-to {:class "form-horizontal"} ["POST" "/new-circuit-connecting"]
+               {:title "New Circuit"
+                :active_page "New Circuit"
+                :page_header "New Circuit"
+                :main_content (form-to {:class "form-horizontal"} ["POST" "/new-circuit"]
                                (anti-forgery-field)
                                (for [field (:fields params)]
                                 (form-group
@@ -113,8 +113,8 @@
                                 [:tbody
                                  (for [row (:rows params)]
                                   [:tr
-                                   [:td [:a {:href (str "/edit-circuit/" (:id row))} (:site_id row)]]
-                                   (for [header (remove #{"site_id"} (:table_headers params))]
+                                   [:td [:a {:href (str "/edit-circuit/" (:id row))} (:circuit_no row)]]
+                                   (for [header (remove #{"circuit_no"} (:table_headers params))]
                                     [:td (get row (keyword header))])])]]]})))
 
 (defn disconnected-circuits [params]

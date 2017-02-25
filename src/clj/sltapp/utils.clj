@@ -44,6 +44,7 @@
         (-> (redirect url)
             (assoc-in [:flash :alerts] [alert])))
       (-> (redirect (or (first error_url) url))
+          (assoc-in [:flash :alerts] [{:class "danger" :message "There are some errors. Please fix then before saving!"}])
           (assoc-in [:flash :form_errors] (get-errors cleaned-obj))))))
 
 (defn get-or-create-app-settings []

@@ -46,13 +46,13 @@ WHERE circuit.id = :id
 -- :doc creates a new circuit
 SELECT *
 FROM circuit
-WHERE site_id = :site_id AND slt_ip_circuit_no = :slt_ip_circuit_no
+WHERE site_id = :site_id AND circuit_no = :circuit_no AND state = 'connected'
 
 -- :name insert-new-circuit ! :! :n
 -- :doc creates a new circuit
 INSERT INTO circuit
-(site_id, site_name, slt_ip_circuit_no, type, current_bandwidth, qos_profile, current_vpls_id, status, commissioned_date, commissioned_by_id, commissioned_under_project, connected_device, state)
-VALUES (:site_id, :site_name, :slt_ip_circuit_no, :type, :current_bandwidth, :qos_profile, :current_vpls_id, :status, :commissioned_date, :commissioned_by_id, :commissioned_under_project, :connected_device, :state)
+(site_id, site_name, circuit_no, type, bandwidth, qos_profile, vpls_id, status, commissioned_date, commissioned_by_id, commissioned_under_project, connected_device, state)
+VALUES (:site_id, :site_name, :circuit_no, :type, :bandwidth, :qos_profile, :vpls_id, :status, :commissioned_date, :commissioned_by_id, :commissioned_under_project, :connected_device, :state)
 
 -- :name clj-expr-generic-update :! :n
 /* :require [clojure.string :as string]
@@ -104,7 +104,7 @@ WHERE state = :state
                                (str (name field) " LIKE '%" value "%'")))]
   (if (string/blank? q) " AND 1=1" (str " AND " q)))
 ~*/
-ORDER BY slt_ip_circuit_no
+ORDER BY circuit_no
 
 -- :name insert-user-perms ! :! :n
 -- :doc creates a new user record
