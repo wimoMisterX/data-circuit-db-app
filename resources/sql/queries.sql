@@ -18,7 +18,7 @@ WHERE user_id = :user_id
 -- :name get-user-list :? :*
 -- :doc get all non admins
 SELECT * FROM users
-WHERE email <> :email AND admin = false
+WHERE email <> :email AND admin = false AND is_active = true
 
 -- :name update-user :! :n
 -- :doc update an existing user's

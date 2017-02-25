@@ -96,7 +96,7 @@
                                                                  [:a {:href (str "/reset-password/" (:id user))} "Reset Password"]
                                                                  [:a {:href (str "/change-permissions/" (:id user))} "Change Permissions"]
                                                                  [:a {:href (str "/modify-user/" (:id user) "/role/admin")} "Make admin"]
-                                                                 [:a {:href (str "/modify-user/" (:id user) "/is_active/" (not (:is_active user)))} (if (:is_active user) "Deactivate user" "Activate user")]]])]]]})))
+                                                                 [:a {:href (str "/modify-user/" (:id user) "/is_active/false")} "Delete user"]]])]]]})))
 
 (defn reset-password [params]
   (base-home (merge

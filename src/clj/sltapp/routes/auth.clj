@@ -35,10 +35,11 @@
                                          {:user_list (db/get-user-list {:email (-> request :identity :email)})}))))
 
 (defn modify-user [request id field value]
-  (let [return-fn (partial perform-action-and-redirect "/manage-users")]
+  (let [return-fn (partial perform-action-and-redirect "/manage-users")
+        is_user (not (:admin (db/get-user {:id-field "id" :id-value id :cols ["admin"]})))]
     (cond
-      (= field "role") (return-fn #(db/update-user {:id-field "id" :id-value id :col "admin" :value (= value "admin")}) {:class "success" :message "User role changed succesfully!"})
-      (= field "is_active") (return-fn #(db/update-user {:id-field "id" :id-value id :col "is_active" :value value}) {:class "success" :message "User status changed successfully!"})
+      (and (= field "role") is_user) (return-fn #(db/update-user {:id-field "id" :id-value id :col "admin" :value (= value "admin")}) {:class "success" :message "User role changed succesfully!"})
+      (and (= field "is_active") is_user) (return-fn #(db/update-user {:id-field "id" :id-value id :col "is_active" :value false}) {:class "success" :message "User deleted successfully!"})
     :else
       (return-fn nil {:class "danger" :message "Invalid action"}))))
 
