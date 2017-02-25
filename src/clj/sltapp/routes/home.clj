@@ -67,10 +67,10 @@
             unique (empty? (db/get-circuit-id-site-id circuit))]
         (if unique
           (db/insert-new-circuit (merge circuit {:commissioned_by_id (-> request :session :identity :id)
-                                                 :commissioned_date (c/to-sql-time (t/now))
+                                                 :commissioned_date (c/to-sql-date (-> request :params :commissioned_date))
                                                  :state "connected"})))
         (-> (redirect "/new-circuit")
-          (assoc-in [:flash :alerts] [{:class (if unique "success" "danger") :message (if unique "Circuit added successfully" "Site Id already exists for the entered Slt Ip Circuit No")}])))
+          (assoc-in [:flash :alerts] [{:class (if unique "success" "danger") :message (if unique "Circuit added successfully" "Site Id already exists for the entered Circuit No")}])))
       (-> (redirect "/new-circuit")
           (assoc-in [:flash :form_errors] (utils/get-errors cleaned-circuit))))))
 
@@ -78,41 +78,28 @@
   (let [return-fn (partial utils/validate-form-redirect (str "/edit-circuit/" id))]
     (cond
       (= form "info_fields") (return-fn
-                               #((if (-> request :identity :admin) validators/validate-circuit-admin-edit validators/validate-circuit-user-edit) (:params request))
-                               #(db/clj-expr-generic-update {:id id :table "circuit" :updates (-> (map (fn [ar] (list (keyword ar) (get (:params request) (keyword ar))))
-                                                                                                       (if (-> request :identity :admin) editable_new_circuit_fields_admin editable_new_circuit_fields_user))
-                                                                                                  ((partial apply concat))
-                                                                                                  ((partial apply array-map)))})
-                               {:class "success" :message "Bw Changing details saved!"})
+                               #((if (-> request :identity :admin) validators/validate-new-circuit validators/validate-circuit-user-edit) (:params request))
+                               #(db/clj-expr-generic-update {:id id :table "circuit" :updates (reduce (fn [update_map field]
+                                                                                                        (merge update_map {(keyword field) (utils/format-value-for-db field (get (:params request) (keyword field)))}))
+                                                                                                      {}
+                                                                                                      (if (-> request :identity :admin) editable_new_circuit_fields_admin editable_new_circuit_fields_user))})
+                               {:class "success" :message "Circuit details saved!"})
       (= form "bw_changing") (return-fn
                                #(validators/validate-bw-changing (:params request))
-                               #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:bandwidth_changed_reason (-> request :params :bandwidth_changed_reason)
-                                                                                               :bandwidth (-> request :params :bandwidth)
-                                                                                               :bandwidth_changed_date (c/to-timestamp (t/now))
-                                                                                               :bandwidth_update_by_id (-> request :session :identity :id)}})
+                               #(db/clj-expr-generic-update {:id id :table "circuit" :updates (utils/build-form-update-map :bw_changing (:params request) (-> request :identity :id))})
                                {:class "success" :message "Bw Changing details saved!"})
       (= form "vpls_changing") (return-fn
                                  #(validators/validate-vpls-changing (:params request))
-                                 #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:vpls_changed_reason (-> request :params :vpls_changed_reason)
-                                                                                                 :vpls_id (-> request :params :vpls_id)
-                                                                                                 :vpls_changed_date (c/to-sql-time (t/now))
-                                                                                                 :vpls_changed_by_id (-> request :session :identity :id)}})
+                                 #(db/clj-expr-generic-update {:id id :table "circuit" :updates (utils/build-form-update-map :vpls_changing (:params request) (-> request :identity :id))})
                                  {:class "success" :message "Vpls Changing details saved!"})
       (= form "device_changing") (return-fn
                                    #(validators/validate-device-changing (:params request))
-                                   #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:new_device_connected_reason (-> request :params :new_device_connected_reason)
-                                                                                                   :connected_device (-> request :params :connected_device)
-                                                                                                   :new_device_connected_date (c/to-sql-time (t/now))
-                                                                                                   :new_device_connected_by_id (-> request :session :identity :id)}})
+                                   #(db/clj-expr-generic-update {:id id :table "circuit" :updates (utils/build-form-update-map :device_changing (:params request) (-> request :identity :id))})
                                    {:class "success" :message "Device Changing details saved!"})
       (= form "disconnecting") (utils/validate-form-redirect
                                  "/disconnected-circuits"
                                  #(validators/validate-disconnecting (:params request))
-                                 #(db/clj-expr-generic-update {:id id :table "circuit" :updates {:state "disconnected"
-                                                                                                 :disconnected_reason (-> request :params :disconnected_reason)
-                                                                                                 :comments (-> request :params :comments)
-                                                                                                 :disconnected_date (c/to-sql-time (t/now))
-                                                                                                 :disconnected_by_id (-> request :session :identity :id)}})
+                                 #(db/clj-expr-generic-update {:id id :table "circuit" :updates (utils/build-form-update-map :disconnecting (:params request) (-> request :identity :id) :initial_value {:state "disconnected"})})
                                  {:class "success" :message "Circuit is disconnected!"}
                                  (str "/edit-circuit/" id))
     :else
@@ -129,9 +116,7 @@
   (utils/validate-form-redirect
     "/app-settings"
     #(validators/validate-app-settings (:params request))
-    #(db/clj-expr-generic-update {:id 1 :table "app_settings" :updates {:timezone (-> request :params :timezone)
-                                                                        :datetime_format (-> request :params :datetime_format)
-                                                                        :form_dropdowns (-> request :params :form_dropdowns)}})
+    #(db/clj-expr-generic-update {:id 1 :table "app_settings" :updates {:form_dropdowns (-> request :params :form_dropdowns)}})
     {:class "success" :message "App settings updated successfully!"}))
 
 (defn circuit-search [state q]

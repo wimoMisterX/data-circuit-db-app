@@ -47,7 +47,8 @@
                   [:div {:class "col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"}
                    [:h1 {:class "page-header"} (:page_header params)]
                    (render-alerts (concat (:alerts params) (:flash_alerts params)))
-                   (:main_content params)]]]]}))
+                   (:main_content params)]]]]
+     :extrabottom (include-js "/js/home.js")}))
 
 (defn home [params]
   (base-home (merge
@@ -152,8 +153,6 @@
                 :page_header "App Settings"
                 :main_content (form-to {:class "form-horizontal"} ["PUT" "/update-app-settings"]
                                (anti-forgery-field)
-                               (form-group "Timezone" (drop-down {:class "form-control"} "timezone" (t/available-ids) (-> params :values :timezone)) (-> params :errors :timezone))
-                               (form-group "Date Time Format" (text-field {:class "form-control"} "datetime_format" (-> params :values :datetime_format)) (-> params :errors :datetime_format))
                                (form-group "Form Dropdowns" (text-area {:class "form-control"} "form_dropdowns" (-> params :values :form_dropdowns)) (-> params :errors :form_dropdowns))
                                (form-group "" (submit-button {:class "btn btn-primary"} "Save") nil))})))
 

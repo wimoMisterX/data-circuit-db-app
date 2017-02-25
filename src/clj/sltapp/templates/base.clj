@@ -8,12 +8,15 @@
           [:title (str "Data Circuit Database App - " title)]
           (include-css "/assets/bootstrap/css/bootstrap.min.css")
           (include-css "/assets/font-awesome/css/font-awesome.min.css")
+          (include-css "/assets/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css")
           (:extrahead context)]
          [:body
           (:content context)
           (include-js "/assets/jquery/jquery.min.js")
           (include-js "/assets/tether/dist/js/tether.min.js")
           (include-js "/assets/bootstrap/js/bootstrap.min.js")
+          (include-js "/assets/moment/min/moment.min.js")
+          (include-js "/assets/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js")
           (:extrabottom context)]))
 
 (defn render-alerts [alerts]

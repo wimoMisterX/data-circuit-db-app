@@ -34,9 +34,6 @@
     (hashers/check (:current_password form) current_password)
     (= (:new_password form) (:confirm_new_password form))))
 
-(defn is-positive-number? [n]
-  (and (number? n) (> n 0)))
-
 (defn validate-new-circuit [circuit]
   (b/validate
     circuit
@@ -44,25 +41,12 @@
     :site_name v/required
     :circuit_no v/required
     :type v/required
-    :bandwidth [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]
+    :bandwidth [[#(not (nil? (re-find #"^\d+$" %))) :message "%s must be a positive number"] v/required]
     :qos_profile v/required
     :vpls_id v/required
     :connected_device v/required
     :status v/required
-    :commissioned_under_project v/string))
-
-(defn validate-circuit-admin-edit [circuit]
-  (b/validate
-    circuit
-    :site_id v/required
-    :site_name v/required
-    :circuit_no v/required
-    :type v/required
-    :bandwidth [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]
-    :qos_profile v/required
-    :vpls_id v/required
-    :connected_device v/required
-    :status v/required
+    :commissioned_date v/required
     :commissioned_under_project v/string))
 
 (defn validate-circuit-user-edit [circuit]
@@ -73,31 +57,33 @@
 (defn validate-bw-changing [circuit]
   (b/validate
     circuit
+    :bandwidth_changed_date v/required
     :bandwidth_changed_reason v/required
-    :bandwidth [[#(is-positive-number? (read-string %)) :message "%s must be a positive number"] v/required]))
+    :bandwidth [[#(not (nil? (re-find #"^\d+$" %))) :message "%s must be a positive number"] v/required]))
 
 (defn validate-vpls-changing [circuit]
   (b/validate
     circuit
+    :vpls_changed_date v/required
     :vpls_changed_reason v/required
     :vpls_id v/required))
 
 (defn validate-device-changing [circuit]
   (b/validate
     circuit
+    :new_device_connected_date v/required
     :new_device_connected_reason v/required
     :connected_device v/required))
 
 (defn validate-disconnecting [circuit]
   (b/validate
     circuit
+    :disconnected_date v/required
     :disconnected_reason v/required))
 
 (defn validate-app-settings [app_settings]
   (b/validate
     app_settings
-    :timezone [v/required [#(contains? (t/available-ids) %) :message "Invalid Timezone"]]
-    :datetime_format [v/required [#(utils/exception-occured? (partial f/formatter-local %)) :message "%s must be a valid date time format"]]
     :form_dropdowns [v/required [#(utils/exception-occured? (partial json/read-str % :key-fn keyword)) :message "%s must be valid JSON"]]))
 
 (defn valid-user-perms? [user]

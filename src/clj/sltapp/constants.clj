@@ -29,16 +29,11 @@
                                         "disconnected_reason"
                                         "comments"]})
 
-(def auto_fill_fields {:new_circuit ["commissioned_date"
-                                     "commissioned_by"]
-                       :bw_changing ["bandwidth_changed_date"
-                                    "bandwidth_update_by"]
-                       :vpls_changing ["vpls_changed_date"
-                                       "vpls_changed_by"]
-                       :device_changing ["new_device_connected_date"
-                                         "new_device_connected_by"]
-                       :disconnecting ["disconnected_date"
-                                       "disconnected_by"]})
+(def auto_fill_fields {:new_circuit ["commissioned_by"]
+                       :bw_changing ["bandwidth_update_by"]
+                       :vpls_changing ["vpls_changed_by"]
+                       :device_changing ["new_device_connected_by"]
+                       :disconnecting ["disconnected_by"]})
 
 (def permissions ["new_circuit"
                   "bw_changing"
@@ -57,4 +52,5 @@
                                         "vpls_id"
                                         "connected_device"
                                         "status"
+                                        "commissioned_date"
                                         "commissioned_under_project"])

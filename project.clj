@@ -23,6 +23,7 @@
                  [org.webjars/font-awesome "4.7.0"]
                  [org.webjars/jquery "3.1.1"]
                  [org.webjars/webjars-locator-jboss-vfs "0.1.0"]
+                 [org.webjars.npm/eonasdan-bootstrap-datetimepicker "4.17.42"]
                  [ring-middleware-format "0.7.2"]
                  [ring-webjars "0.1.1"]
                  [ring/ring-core "1.5.1"]

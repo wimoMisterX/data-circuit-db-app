@@ -7,8 +7,11 @@
             [clj-time.local :as l]
             [clj-time.coerce :as c]
             [clj-time.format :as f]
-            [sltapp.constants :refer [permissions]]
+            [sltapp.constants :refer [permissions auto_fill_fields form_to_field_map]]
             [clojure.string :as string]))
+
+(defn not-nil? [v]
+  (not (nil? v)))
 
 (defn valid? [validated]
   (= (get validated 0) nil))
@@ -44,29 +47,28 @@
         (-> (redirect url)
             (assoc-in [:flash :alerts] [alert])))
       (-> (redirect (or (first error_url) url))
-          (assoc-in [:flash :alerts] [{:class "danger" :message "There are some errors. Please fix then before saving!"}])
+          (assoc-in [:flash :alerts] [{:class "danger" :message "An error has been detected. Please scroll down and fix it before saving."}])
           (assoc-in [:flash :form_errors] (get-errors cleaned-obj))))))
 
 (defn get-or-create-app-settings []
   (if (empty? (db/get-app-settings))
-    (db/insert-app-settings {:timezone "Asia/Colombo"
-                             :datetime_format "yyyy-MM-dd HH:mm:ss"
-                             :form_dropdowns (json/write-str {:qos_profile ["Platinum T2" "Bronze" "Gold T1"]
+    (db/insert-app-settings {:form_dropdowns (json/write-str {:qos_profile ["Platinum T2" "Bronze" "Gold T1"]
                                                               :current_vpls_id ["28291" "45556" "52361"]
-                                                              :status ["Live" "Commissioned" "Decomissioned"]})}))
+                                                              :status ["Requested" "Commissioned" "Decomissioned"]
+                                                              :type ["VPLS" "VLL" "COPPER-VPLS"]
+                                                              :connected_device ["ATN" "CTN6150" "CTN6200"]})}))
   (db/get-app-settings))
 
-(defn sql-time-to-local-time [settings dt]
-  (f/unparse (f/formatter-local (:datetime_format settings)) (t/to-time-zone (c/from-sql-time dt) (t/time-zone-for-id (:timezone settings)))))
+(defn format-sql-date [d]
+  (f/unparse (f/formatter-local "YYYY-MM-dd") (l/to-local-date-time d)))
 
 (defn format-values [value_map]
-  (let [format-time (partial sql-time-to-local-time (select-keys (get-or-create-app-settings) [:timezone :datetime_format]))]
-    (reduce
-      #(merge
-        %1
-        {(first %2) (if (and (not (nil? (last %2))) (string/includes? (name (first %2)) "_date")) (str (format-time (last %2))) (str (last %2)))})
-      {}
-      (seq value_map))))
+  (reduce
+    (fn [formatted_value_map [kw v]]
+      (merge formatted_value_map
+             {kw (if (and (not-nil? v) (string/includes? (name kw) "_date")) (format-sql-date v) v)}))
+    {}
+    (seq value_map)))
 
 (defn exception-occured? [func]
   (not (= false (try
@@ -84,7 +86,7 @@
         {}
         (seq (json/read-str (:form_dropdowns (get-or-create-app-settings)) :key-fn keyword)))
       (keyword field)
-      (text-field {:class "form-control" :disabled disabled} field value))))
+      (text-field {:class (if (string/includes? field "_date") "form-control datetime-field" "form-control") :disabled disabled} field value))))
 
 (defn format-search [q]
   (str "{" (string/join " " (for [x (string/split q #" ")] (str "\"" x "\""))) "}"))
@@ -96,3 +98,17 @@
   (if (:admin identity)
     permissions
     (:permissions identity)))
+
+(defn get-editable-fields [form]
+  (remove (set (form auto_fill_fields)) (form form_to_field_map)))
+
+(defn format-value-for-db [field value]
+  (if (string/includes? field "_date")
+    (c/to-sql-date value)
+    value))
+
+(defn build-form-update-map [form params user_id & {:keys [initial_value] :or {initial_value {}}}]
+  (reduce (fn [update_map field]
+            (merge update_map {(keyword field) (format-value-for-db field (get params (keyword field)))}))
+          (merge initial_value {(keyword (str (first (form auto_fill_fields)) "_id")) user_id})
+          (get-editable-fields form)))

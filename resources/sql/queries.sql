@@ -75,8 +75,8 @@ WHERE state = :state AND id = :id
 -- :name insert-app-settings ! :! :n
 -- :doc creates a new user record
 INSERT INTO app_settings
-(timezone, datetime_format, form_dropdowns)
-VALUES (:timezone, :datetime_format, :form_dropdowns)
+(form_dropdowns)
+VALUES (:form_dropdowns)
 
 -- :name get-app-settings :? :1
 -- :doc check if circuit in state
