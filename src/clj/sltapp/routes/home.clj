@@ -136,7 +136,7 @@
                         :cols (into [] (first data))
                         :vals (map (fn [val_set] (map utils/format-value-for-db (into [] (first data)) val_set)) (into [] (drop 1 data)))})
     (-> (redirect "/import-data")
-        (assoc-in [:flash :alerts] [{:class "success" :message "Data exported successfully!"}]))))
+        (assoc-in [:flash :alerts] [{:class "success" :message "Data imported successfully!"}]))))
 
 (defn import-data-page [request]
   (render (home-templates/import-data-page (base-context-authenticated-access request))))
