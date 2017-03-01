@@ -115,3 +115,6 @@ VALUES (:user_id, :codename)
 -- :name delete-user-perms :! :n
 DELETE FROM permissions
 WHERE user_id = :user_id AND codename = :codename
+
+-- :name generic-insert :! :n
+insert into :i:table (:i*:cols) values :tuple*:vals

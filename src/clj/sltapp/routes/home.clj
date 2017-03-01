@@ -130,8 +130,21 @@
                "Content-Disposition" (str "attachment;filename=" (-> (hash/sha256 (c/to-string (t/now))) (bytes->hex))  ".csv")}
      :body    (csv/write-csv (into [(map utils/db-field-to-verbose-name table_headers)] (for [row rows] (for [header table_headers] (get row (keyword header))))))}))
 
+(defn import-csv [request]
+  (let [data (csv/parse-csv (clojure.java.io/reader (:tempfile (-> request :params :file))))]
+    (db/generic-insert {:table "circuit"
+                        :cols (into [] (first data))
+                        :vals (into [] (drop 1 data))})
+    (-> (redirect "/import-data")
+        (assoc-in [:flash :alerts] [{:class "success" :message "Data exported successfully!"}]))))
+
+(defn import-data-page [request]
+  (render (home-templates/import-data-page (base-context-authenticated-access request))))
+
 (defroutes home-routes
   (GET "/" [] home-page)
+  (GET "/import-data" [] import-data-page)
+  (POST "/import-data" [] import-csv)
   (GET "/new-circuit" [] new-circuit-page)
   (POST "/new-circuit" [] add-circuit)
   (GET "/edit-circuit/:id{[0-9]+}" [id :as r] (edit-circuit-page r id))
