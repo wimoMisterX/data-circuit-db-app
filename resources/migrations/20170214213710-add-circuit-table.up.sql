@@ -13,7 +13,7 @@ CREATE TABLE circuit(
     commissioned_by_id NUMERIC references users(id),
     commissioned_under_project VARCHAR(30),
     bandwidth_changed_date DATE,
-    bandwidth_update_by_id NUMERIC references users(id),
+    bandwidth_changed_by_id NUMERIC references users(id),
     bandwidth_changed_reason VARCHAR(300),
     vpls_changed_date DATE,
     vpls_changed_by_id NUMERIC references users(id),

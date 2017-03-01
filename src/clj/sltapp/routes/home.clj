@@ -134,7 +134,7 @@
   (let [data (csv/parse-csv (clojure.java.io/reader (:tempfile (-> request :params :file))))]
     (db/generic-insert {:table "circuit"
                         :cols (into [] (first data))
-                        :vals (into [] (drop 1 data))})
+                        :vals (map (fn [val_set] (map utils/format-value-for-db (into [] (first data)) val_set)) (into [] (drop 1 data)))})
     (-> (redirect "/import-data")
         (assoc-in [:flash :alerts] [{:class "success" :message "Data exported successfully!"}]))))
 

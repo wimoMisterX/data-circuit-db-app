@@ -36,7 +36,7 @@ SELECT *,
     CONCAT_WS(' ', u5.first_name, u5.last_name) as disconnected_by
 FROM circuit
 LEFT JOIN users AS u1 ON circuit.commissioned_by_id = u1.id
-LEFT JOIN users AS u2 ON circuit.bandwidth_update_by_id = u2.id
+LEFT JOIN users AS u2 ON circuit.bandwidth_changed_by_id = u2.id
 LEFT JOIN users AS u3 ON circuit.vpls_changed_by_id = u3.id
 LEFT JOIN users AS u4 ON circuit.new_device_connected_by_id = u4.id
 LEFT JOIN users AS u5 ON circuit.disconnected_by_id = u5.id
@@ -94,7 +94,7 @@ SELECT *,
     CONCAT_WS(' ', u5.first_name, u5.last_name) as disconnected_by
 FROM circuit
 LEFT JOIN users AS u1 ON circuit.commissioned_by_id = u1.id
-LEFT JOIN users AS u2 ON circuit.bandwidth_update_by_id = u2.id
+LEFT JOIN users AS u2 ON circuit.bandwidth_changed_by_id = u2.id
 LEFT JOIN users AS u3 ON circuit.vpls_changed_by_id = u3.id
 LEFT JOIN users AS u4 ON circuit.new_device_connected_by_id = u4.id
 LEFT JOIN users AS u5 ON circuit.disconnected_by_id = u5.id

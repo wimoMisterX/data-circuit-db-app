@@ -43,7 +43,7 @@
                                                       {:href "/disconnected-circuits" :value "Disconnected Circuits"}
                                                       (if (:admin params) {:href "/register" :value "Register a User"})
                                                       (if (:admin params) {:href "/manage-users" :value "Manage Users"})
-                                                      (if (:admin params) {:href "/import-data" :value "Import Cirucit Data"})
+                                                      (if (:admin params) {:href "/import-data" :value "Import Data"})
                                                       (if (:admin params) {:href "/app-settings" :value "App Settings"})])]]
                   [:div {:class "col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"}
                    [:h1 {:class "page-header"} (:page_header params)]
@@ -160,9 +160,9 @@
 (defn import-data-page [params]
   (base-home (merge
                params
-               {:title "Import Circuit Data"
+               {:title "Import Data"
                 :active_page "Import Data"
-                :page_header "Import Circuit Data"
+                :page_header "Import Data"
                 :main_content (form-to {:class "form-horizontal" :enctype "multipart/form-data"} ["POST" "/import-data"]
                                (anti-forgery-field)
                                (form-group "Select files to upload" [:input {:type "file" :name "file" :multiple true :accept "text/csv"}] nil)

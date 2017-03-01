@@ -13,7 +13,7 @@
                                       "commissioned_by"
                                       "commissioned_under_project"]
                         :bw_changing ["bandwidth_changed_date"
-                                      "bandwidth_update_by"
+                                      "bandwidth_changed_by"
                                       "bandwidth"
                                       "bandwidth_changed_reason"]
                         :vpls_changing ["vpls_changed_date"
@@ -30,7 +30,7 @@
                                         "comments"]})
 
 (def auto_fill_fields {:new_circuit ["commissioned_by"]
-                       :bw_changing ["bandwidth_update_by"]
+                       :bw_changing ["bandwidth_changed_by"]
                        :vpls_changing ["vpls_changed_by"]
                        :device_changing ["new_device_connected_by"]
                        :disconnecting ["disconnected_by"]})
