@@ -30,7 +30,7 @@ WHERE :i:id-field = :id-value
 -- :doc retrieve a circuit
 SELECT *,
     CONCAT_WS(' ', u1.first_name, u1.last_name) as commissioned_by,
-    CONCAT_WS(' ', u2.first_name, u2.last_name) as bandwidth_update_by,
+    CONCAT_WS(' ', u2.first_name, u2.last_name) as bandwidth_changed_by,
     CONCAT_WS(' ', u3.first_name, u3.last_name) as vpls_changed_by,
     CONCAT_WS(' ', u4.first_name, u4.last_name) as new_device_connected_by,
     CONCAT_WS(' ', u5.first_name, u5.last_name) as disconnected_by
@@ -88,7 +88,7 @@ WHERE id = 1
 -- :doc get all disconnected circuits
 SELECT *,
     CONCAT_WS(' ', u1.first_name, u1.last_name) as commissioned_by,
-    CONCAT_WS(' ', u2.first_name, u2.last_name) as bandwidth_update_by,
+    CONCAT_WS(' ', u2.first_name, u2.last_name) as bandwidth_changed_by,
     CONCAT_WS(' ', u3.first_name, u3.last_name) as vpls_changed_by,
     CONCAT_WS(' ', u4.first_name, u4.last_name) as new_device_connected_by,
     CONCAT_WS(' ', u5.first_name, u5.last_name) as disconnected_by
