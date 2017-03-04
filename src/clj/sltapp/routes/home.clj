@@ -128,7 +128,10 @@
     {:status  200
      :headers {"Content-Type" "text/csv"
                "Content-Disposition" (str "attachment;filename=" (-> (hash/sha256 (c/to-string (t/now))) (bytes->hex))  ".csv")}
-     :body    (csv/write-csv (into [(map utils/db-field-to-verbose-name table_headers)] (for [row rows] (for [header table_headers] (get row (keyword header))))))}))
+     :body    (csv/write-csv (into [(map utils/db-field-to-verbose-name table_headers)]
+                                   (for [row rows]
+                                     (for [header table_headers]
+                                       (str (get row (keyword header)))))))}))
 
 (defn import-csv [request]
   (let [data (csv/parse-csv (clojure.java.io/reader (:tempfile (-> request :params :file))))]
